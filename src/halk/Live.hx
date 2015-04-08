@@ -1,6 +1,5 @@
 package halk;
 
-import hscript.Expr;
 import haxe.Unserializer;
 import halk.Macro.MacroContext;
 import haxe.Http;
@@ -66,17 +65,11 @@ class Live {
     function process(str:String):Void {
         if (str == null) return;
 
-        var newData:MacroContext = null;
-        var id:Int;
-        try {
-            var lines = str.split("\n");
-            id = Std.parseInt(lines[0]);
-            if (data != null && data.id == id) return;
-
-            newData = Unserializer.run(lines[1]);
-        } catch (e:Dynamic) {
-            trace(e);
+        if (data != null && data.version == MacroContext.getVersion(str)) {
+            return;
         }
+
+        var newData:MacroContext = MacroContext.fromFile(str);
 
         if (newData == null) {
             return;
@@ -84,10 +77,9 @@ class Live {
 
         data = newData;
 
-        var vars:Map<String, Dynamic> = interp.variables = new Map();
-        vars.set("true", true);
-        vars.set("false", false);
-        vars.set("trace", haxe.Log.trace);
+        interp = new HalkInterp();
+        var vars:Map<String, Dynamic> = interp.variables;
+
         for (n in data.types.keys()) {
             var t:Array<String> = data.types[n];
             var type = Type.resolveClass(n);
@@ -109,7 +101,7 @@ class Live {
                 Reflect.setField(end, name, type);
             }
         }
-        trace(vars);
+
         methods = [for (m in data.methods.keys()) m => interp.execute(data.methods[m])];
 
         updateListeners();
