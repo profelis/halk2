@@ -30,6 +30,7 @@ abstract ExtExpr(Array<HExpr>) from Array<HExpr> to Array<HExpr> {
     }
 }
 
+@:deprecated("use HscriptTypedConverter")
 class HScriptConverter {
 
     var binops:Map<Binop, String>;
@@ -91,6 +92,7 @@ class HScriptConverter {
 
     public function convert(type:ClassType, expr:haxe.macro.Expr):{e:HExpr, types:Map<String, Array<String>>} {
         types = new Map();
+
         var e:HExpr = map(expr);
         trace(e);
         return {e:e, types:types};
@@ -107,7 +109,7 @@ class HScriptConverter {
             try {
                 convertType(Context.typeof(e).toComplexType(), e.pos);
             } catch (e:Dynamic) {
-                trace(e);
+                //trace(e);
             }
         }
 

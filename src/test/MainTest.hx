@@ -1,18 +1,32 @@
-package tests;
+package test;
 import haxe.io.Path;
 import halk.Live;
 import halk.ILive;
+
+enum A {
+    C1;
+    C2(i:Int);
+}
+
 class MainTest implements ILive {
     public function new() {
+        trace(A.C1);
     }
 
-    @liveUpdate @live function test2() {
+    @liveUpdate function test2() {
         this.test(1, true);
     }
 
     var i:String = "tada";
 
     @live function test(a:Int, b:Bool) {
+        trace("live");
+        trace(A);
+        trace(switch (C2(10)) {
+            case C2(b): b;
+            case C1: 0;
+
+        });
         var a:Array<Int> = [1];
         a = new Array();
         a = new Array<Int>();
@@ -28,9 +42,8 @@ class MainTest implements ILive {
         trace(a);
         trace(b);
         trace(p.toString());
-        trace(Std.string(t) + " 23");
-
+        trace(Std.string(2) + " 23");
         trace(this.i);
-        for (r in a) trace(r);
+        for (r in [12]) trace(r);
     }
 }

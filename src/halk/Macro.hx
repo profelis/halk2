@@ -1,5 +1,7 @@
 package halk;
 
+import hscript.Printer;
+import halk.Macro.MacroContext;
 import haxe.Serializer;
 import haxe.Unserializer;
 import hscript.Expr;
@@ -14,11 +16,16 @@ import haxe.macro.Compiler;
 import haxe.macro.Context;
 import halk.macro.LiveProcessor;
 import haxe.macro.Expr.Field;
+
+using haxe.macro.Tools;
 #end
 
 using StringTools;
 
 class MacroContext {
+
+    static public inline var LIVE_FILE_NAME = "data.live";
+
     public function new() {}
 
     public var version:Int = 0;
@@ -26,7 +33,7 @@ class MacroContext {
     public var methods:Map<String, Expr> = new Map();
     public var types:Map<String, Array<String>> = new Map();
 
-    public function toFile():String {
+    public inline function toFile():String {
         Serializer.USE_ENUM_INDEX = true;
 
         return '$version\n' + Serializer.run(this);
@@ -54,72 +61,96 @@ class Macro {
     #if macro
     static var processor = new LiveProcessor();
 
-    static var processed:Array<String> = [];
-    static var context = new MacroContext();
+    static var liveContext = new LiveProcessorContext();
 
-    static function reset() {
-        processed = [];
-        context = new MacroContext();
+    static inline function reset() {
+        liveContext = new LiveProcessorContext();
     }
 
+    // todo: refactor this shit
     static function getOutPath() {
-        var path = FileSystem.fullPath(Compiler.getOutput());
+
+        var isLime = Context.defined("lime") || Context.defined("nme") || Context.defined("openfl");
+
+        var path = Compiler.getOutput();
+        if (FileSystem.exists(path))
+            path = FileSystem.fullPath(path);
+
         var p = new Path(path);
-        if (!FileSystem.isDirectory(path)) p = new Path(p.dir); // swf, n file
-        trace(p);
-
-        #if sys // lime obj folder
-        if (p.file == "obj") p = new Path(p.dir + "/bin");
-        trace(p);
-        #end
-
-        #if mac
-        var main = null;
-        for (f in FileSystem.readDirectory(p.toString())) {
-            if (StringTools.endsWith(f, ".app")) {
-                main = f;
-                break;
+        if (FileSystem.exists(path)) {
+            if (!FileSystem.isDirectory(path)) {
+                p = new Path(p.dir); // swf, n file
             }
         }
-        if (main != null) {
-            #if lime
-            p = new Path(p.toString() + "/" + main + "/Contents/Resources");
-            #else
-            p = new Path(p.toString() + "/" + main + "/Contents/MacOS");
-            #end
+        else if (Context.defined("flash") || Context.defined("neko") || Context.defined("js")) {
+            p = new Path(p.dir); // swf, n, js file
+        }
+
+        // lime obj folder
+        if (isLime && p.file == "obj") {
+            p = new Path(p.dir + "/bin");
             trace(p);
         }
-        #end
 
-        return p.toString() + "/data.live";
+        if (Context.defined("mac")) {
+            var main = null;
+            for (f in FileSystem.readDirectory(p.toString())) {
+                if (StringTools.endsWith(f, ".app")) {
+                    main = f;
+                    break;
+                }
+            }
+            if (main != null) {
+                if (isLime) {
+                    p = new Path(p.toString() + "/" + main + "/Contents/Resources");
+                } else {
+                    p = new Path(p.toString() + "/" + main + "/Contents/MacOS");
+                }
+                trace(p);
+            }
+        }
+
+        return p.toString() + "/" + MacroContext.LIVE_FILE_NAME;
+    }
+
+    static function onGenerate(types:Array<haxe.macro.Type>) {
+        Compiler.keep('Type');
+
+        var context = new MacroContext();
+        processor.postProcess(types, liveContext, context);
+
+        var path = getOutPath();
+        try {
+            // todo: global version
+            var cont = File.getContent(path);
+            context.version = MacroContext.getVersion(cont) + 1;
+        } catch (e:Dynamic) {
+            // todo: Warn.error
+            trace(e);
+        }
+
+        trace("Config saved: " + path);
+        File.saveContent(path, context.toFile());
+        reset();
+    }
+
+    static function onMacroContextReused() {
+        reset();
+        return true;
     }
 
     #end
 
     macro static public function build():Array<Field> {
 
-        Context.onMacroContextReused(function () {
-            reset();
-            return true;
-        });
+        Context.onMacroContextReused(onMacroContextReused);
+        Context.onGenerate(onGenerate);
 
-        Context.onAfterGenerate(function () {
-            var path = getOutPath();
-            try {
-                var cont = File.getContent(path);
-                context.version = MacroContext.getVersion(cont) + 1;
-            } catch (e:Dynamic) {
-                trace(e);
-            }
+        var classType = Context.getLocalType().getClass();
 
-            File.saveContent(path, context.toFile());
-            reset();
-        });
-
-        var type = Context.getLocalType();
+        if (liveContext.isRegistered(classType)) return null;
 
         var fields = Context.getBuildFields();
-
-        return processor.process(type, fields, context, processed);
+        return processor.process(classType, fields, liveContext);
     }
 }

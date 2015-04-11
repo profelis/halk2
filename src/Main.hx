@@ -1,7 +1,7 @@
 package ;
 
 
-import tests.MainTest;
+import test.MainTest;
 import lime.app.Application;
 
 

@@ -1,5 +1,6 @@
 package halk;
 
+import halk.Macro.MacroContext;
 import haxe.Unserializer;
 import halk.Macro.MacroContext;
 import haxe.Http;
@@ -38,14 +39,14 @@ class Live {
 //        trace(FileSystem.readDirectory(Sys.getCwd()));
         var data:String = null;
         try {
-            data = File.getContent("data.live");
+            data = File.getContent(MacroContext.LIVE_FILE_NAME);
         } catch (e:Dynamic) {
             onError(e);
             return;
         }
         onData(data);
         #else
-        var loader = new Http("data.live");
+        var loader = new Http(MacroContext.LIVE_FILE_NAME);
         loader.onData = onData;
         loader.onError = onError;
         loader.request();
@@ -82,14 +83,16 @@ class Live {
 
         for (n in data.types.keys()) {
             var t:Array<String> = data.types[n];
-            var type = Type.resolveClass(n);
+            var type:Dynamic = Type.resolveClass(n);
+            if (type == null) type = Type.resolveEnum(n);
             if (type == null) continue;
 
             var name = t.pop();
             var end = null;
             for (s in t) {
                 if (end == null) {
-                    vars.set(s, end = {});
+                    if (!vars.exists(s)) vars.set(s, end = {});
+                    else end = vars.get(s);
                 }
                 else if (!Reflect.hasField(end, s)) {
                     Reflect.setField(end, s, end = {});
@@ -102,27 +105,29 @@ class Live {
             }
         }
 
+//        trace(vars);
+
         methods = [for (m in data.methods.keys()) m => interp.execute(data.methods[m])];
 
         updateListeners();
     }
 
-    @:keep public function call<T>(ethis:T, method:String, args:Array<Dynamic>):Dynamic {
+    public function call<T>(ethis:T, method:String, args:Array<Dynamic>):Dynamic {
         if (data == null) return null;
-        trace("call " + method);
+//        trace("call " + method);
         interp.variables.set("this", ethis);
         return Reflect.callMethod(ethis, methods.get(method), args);
     }
 
     public function addListener(listener:Void->Void):Void {
-        trace('register listener $listener');
+//        trace('register listener $listener');
         removeListener(listener);
         listeners.push(listener);
     }
 
     public function removeListener(listener:Void->Void):Void {
         if (listeners.remove(listener)) {
-            trace('unregister listener $listener');
+//            trace('unregister listener $listener');
         }
     }
 

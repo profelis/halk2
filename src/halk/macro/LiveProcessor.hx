@@ -2,15 +2,53 @@ package halk.macro;
 
 
 import haxe.macro.Context;
-import haxe.macro.Type.ClassType;
-import halk.Macro.MacroContext;
+import haxe.macro.Type;
 import haxe.macro.Expr;
+import hscript.Expr.Argument;
+import halk.Macro.MacroContext;
+import halk.macro.TypeTools.BaseTypeTools;
 
 using halk.macro.MetaTools;
 using haxe.macro.Tools;
 using hscript.Printer;
 using halk.MapTools;
 
+typedef MethodData = {
+    expr:Expr,
+    args:Array<FunctionArg>
+}
+
+typedef ClassData = {
+    name:String,
+    fields:Array<String>
+}
+
+class LiveProcessorContext {
+
+    var classes:Map<String, ClassData> = new Map();
+
+    public function new() {}
+
+    public inline function isRegistered(type:ClassType) {
+        return classes.exists(key(type));
+    }
+
+    public inline function findClassData(type:haxe.macro.Type):Null<ClassData> {
+        return if (type == null) null;
+        else switch type {
+                case TInst(t, _): classes.get(key(t.get()));
+                case _: null;
+            }
+    }
+
+    public inline function register(type:ClassType, data:ClassData) {
+        data.name = key(type);
+        classes[data.name] = data;
+    }
+
+    inline function key(type:ClassType):String return BaseTypeTools.baseTypePath(type).join(".");
+
+}
 
 class LiveProcessor {
 
@@ -22,23 +60,18 @@ class LiveProcessor {
     var additionalFields:Array<Field>;
     var ctorPatch:Array<Expr>;
     var destructor:Array<Expr>;
+
+    var classData:ClassData;
+
+    var scriptConverter:HScriptTypedConverter = new HScriptTypedConverter();
     var macroContext:MacroContext;
 
-    var scriptConverter = new HScriptConverter();
-
-    public function process(type:haxe.macro.Type, fields:Array<Field>, macroContext:MacroContext, processed:Array<String>):Array<Field> {
-
-        this.macroContext = macroContext;
+    public function process(classType:ClassType, fields:Array<Field>, liveContext:LiveProcessorContext):Array<Field> {
+        classData = { fields:[], name:null };
+        liveContext.register(classType, classData);
         additionalFields = [];
         ctorPatch = [];
         destructor = [];
-
-        var classType = type.getClass();
-        var typeName = type.toString();
-        if (processed.indexOf(typeName) > -1) {
-            return fields;
-        }
-        processed.push(typeName);
 
         for (f in fields) {
             var liveMeta = f.meta.findMeta(LIVE_META);
@@ -80,13 +113,46 @@ class LiveProcessor {
                         ${f.expr};
                         $b{ctorPatch}
                     };
-
-                    trace(f.expr.toString());
                 case _:
             }
+
+            var destType = macro class T {
+                public function removeAllLiveListeners() $b{destructor};
+            }
+            additionalFields.push(destType.fields[0]);
         }
 
         return fields.concat(additionalFields);
+    }
+
+    public function postProcess(types:Array<haxe.macro.Type>, liveContext:LiveProcessorContext, macroContext:MacroContext):Void {
+        for (t in types) {
+            var classData:ClassData = liveContext.findClassData(t);
+            if (classData == null) continue;
+            //trace(classData);
+            var classType:ClassType = t.getClass();
+            //trace(classType);
+            for (f in classType.fields.get()) {
+                if (classData.fields.indexOf(f.name) == -1) continue;
+                var expr:TypedExpr;
+                var args:Array<{v:TVar, value:Null<TConstant>}>;
+                switch (f.expr().expr) {
+                    // function { return #magic#, {#old_function_body#} }
+                    case TFunction({args:a, expr:{expr:TBlock([{expr:TReturn(_)}, e])}}):
+                        expr = e;
+                        args = a;
+                    case _: throw false;
+                };
+                //trace(expr);
+                //trace(expr.toString());
+
+                var convertData = scriptConverter.convert(classType, expr);
+
+                var fArg:Array<Argument> = [for (arg in args) {name:arg.v.name, opt:arg.value != null}];
+                macroContext.methods.set(classData.name + "." + f.name, hscript.Expr.EFunction(fArg, convertData.e));
+                macroContext.types.add(convertData.types);
+            }
+        }
     }
 
     function processLiveUpdateField(type:ClassType, field:Field, meta:MetadataEntry, liveMeta:MetadataEntry):Void {
@@ -107,26 +173,17 @@ class LiveProcessor {
     }
 
     function processLiveField(type:ClassType, field:Field, meta:MetadataEntry):Void {
+        var typeName = BaseTypeTools.baseTypePath(type).join(".") + ".";
+
         switch field.kind {
             case FFun(f):
-                //trace(f);
+                classData.fields.push(field.name);
+
+                var exprs = [f.expr];
                 var args = [for (arg in f.args) macro $i{arg.name}];
-                var expr = f.expr;
-                var convertData = scriptConverter.convert(type, expr);
-
-                var type = TypeTools.baseTypePath(type);
-                var mn = type.join(".") + "." + field.name;
-
-                macroContext.types.add(convertData.types);
-                macroContext.methods.set(mn, hscript.Expr.EFunction([for (arg in f.args) {name:arg.name, opt:arg.opt}], convertData.e));
-
-                var exprs = [];
-
-                exprs.push(macro return halk.Live.instance.call(this, $v{mn}, $a{args}));
-                exprs.push(expr);
+                exprs.unshift(macro return halk.Live.instance.call(this, $v{typeName + field.name}, $a{args}));
 
                 f.expr = macro $b{exprs};
-                trace(f.expr.toString());
             case _:
         }
     }
