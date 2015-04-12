@@ -2,12 +2,11 @@ package halk;
 
 import haxe.Resource;
 import halk.Macro.MacroContext;
-import haxe.Http;
 
 #if sys
 import sys.io.File;
 #else
-import haxe.Timer;
+import haxe.Http;
 #end
 
 using StringTools;
@@ -151,7 +150,7 @@ class Live {
             f();
         });
         #else
-        Timer.delay(f, time);
+        haxe.Timer.delay(f, time);
         #end
     }
 }

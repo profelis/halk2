@@ -1,11 +1,10 @@
 package halk;
 
 import haxe.io.Bytes;
-import hscript.Printer;
-import halk.Macro.MacroContext;
 import haxe.Serializer;
 import haxe.Unserializer;
 import hscript.Expr;
+import halk.Macro.MacroContext;
 
 #if macro
 import sys.FileSystem;
@@ -40,20 +39,29 @@ class MacroContext {
         return '$version\n' + Serializer.run(this);
     }
 
-    public static function getVersion(fileCont:String):Int {
-        if (fileCont == null) return 0;
-        var lines = fileCont.split("\n");
-        var res = Std.parseInt(lines[0]);
-        return res == null ? 0 : res;
-    }
-
-    public static function fromFile(fileCont:String):MacroContext {
+    static function parseCont(fileCont:String, unserialize:Bool):{version:Int, data:Dynamic} {
         if (fileCont == null) return null;
         var lines = fileCont.split("\n");
         if (lines.length < 2) return null;
-        return try {
-            Unserializer.run(lines[1]);
-        } catch (e:Dynamic) { null; }
+
+        var data:Dynamic = if (unserialize) {
+            try {
+                Unserializer.run(lines[1]);
+            } catch (e:Dynamic) { null; }
+        } else {
+            lines[1];
+        }
+        return {version:Std.parseInt(lines[0]), data:data};
+    }
+
+    public static function getVersion(fileCont:String):Int {
+        var data = parseCont(fileCont, false);
+        return if (data == null) 0; else data.version;
+    }
+
+    public static function fromFile(fileCont:String):MacroContext {
+        var data = parseCont(fileCont, true);
+        return if (data == null) null; else data.data;
     }
 }
 
@@ -131,10 +139,11 @@ class Macro {
             trace(e);
         }
 
-        trace("Config saved: " + path);
         var cont = context.toFile();
         File.saveContent(path, cont);
+        neko.Lib.println("Config saved: " + path);
         Context.addResource(MacroContext.LIVE_FILE_NAME, Bytes.ofString(cont));
+
         reset();
     }
 
