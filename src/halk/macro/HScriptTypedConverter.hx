@@ -16,6 +16,8 @@ class HScriptTypedConverter {
 
     var types:Map<String, Array<String>>;
 
+    static var breakedId:Int = 0;
+
     public function new() {
 
         binops = new Map();
@@ -72,7 +74,7 @@ class HScriptTypedConverter {
 //        trace(expr.toString());
         var e:hscript.Expr = map(expr);
 //        trace(e.toString());
-        //trace(e);
+//        trace(e);
         return {e:e, types:types};
     }
 
@@ -141,7 +143,7 @@ class HScriptTypedConverter {
                 var path = BaseTypeTools.baseTypePath(bs);
                 ENew(path.join("."), mapArray(params));
             
-            case TUnop(op, postFix, e): EUnop(unops.get(op), postFix, map(e));
+            case TUnop(op, postFix, e): EUnop(unops.get(op), !postFix, map(e));
             case TFunction(func):
                 var args = [];
                 for (arg in func.args) {
@@ -157,7 +159,16 @@ class HScriptTypedConverter {
             case TFor(v, it, expr): EFor(v.name, map(it), map(expr));
             case TIf(econd, eif, eelse): EIf(map(econd), map(eif), map(eelse));
             case TWhile(econd, e, true): EWhile(map(econd), map(e));
-            case TWhile(econd, e, false): Context.error("do{}while() not implemented", econd.pos); //EWhile(f(econd), map(e), normalWhile);
+            case TWhile(econd, e, false):
+
+                var expr = map(e);
+                var breakedName = "___breaked" + (++breakedId);
+                EBlock([
+                    EVar(breakedName,null,EIdent("true")),
+                    EWhile(EIdent("true"),EBlock([expr,EBinop("=",EIdent(breakedName),EIdent("false")),EBreak])),
+                    EIf(EUnop("!",false,EIdent(breakedName)),EWhile(map(econd), expr),null)
+                ]);
+
             case TSwitch(e, cases, edef):
 
                 var res:Array<{values:Array<hscript.Expr>, expr:hscript.Expr}> = [];
