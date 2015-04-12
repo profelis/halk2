@@ -86,7 +86,7 @@ class HScriptTypedConverter {
         }
 
         inline function registerStdType(type:Array<String>) {
-            types.set(type.join("."), type);
+            types.set(type.join("."), type.copy());
         }
 
         inline function registerBaseType(type:BaseType):Void {
