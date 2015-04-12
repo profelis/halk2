@@ -85,8 +85,8 @@ class HScriptTypedConverter {
             return [for (p in arr) map(p)];
         }
 
-        inline function registerStdType(type:String) {
-            types.set(type, type.split("."));
+        inline function registerStdType(type:Array<String>) {
+            types.set(type.join("."), type);
         }
 
         inline function registerBaseType(type:BaseType):Void {
@@ -107,8 +107,10 @@ class HScriptTypedConverter {
                 // magic "`trace" method in js target
                 if (v.name == "`trace")
                 {
-                    registerStdType("haxe.Log");
-                    EField(EField(EIdent("haxe"), "Log"), "trace");
+                    var type = ["haxe", "Log"];
+                    registerStdType(type);
+                    type.push("trace");
+                    pathToHExpr(type);
                 }
                 else EIdent(v.name);
 
@@ -128,9 +130,7 @@ class HScriptTypedConverter {
                 var baseType = baseTypeFromModuleType(cl);
                 registerBaseType(baseType);
                 var path = BaseTypeTools.baseTypePath(baseType);
-                var res = EIdent(path.shift());
-                while (path.length > 0) res = EField(res, path.shift());
-                res;
+                pathToHExpr(path);
 
             case TParenthesis(e): EParent(map(e));
             case TObjectDecl(fields): EObject([for (f in fields) {name:f.name, e:map(f.expr)}]);
@@ -139,8 +139,10 @@ class HScriptTypedConverter {
                 switch e.expr {
                     case TField(f, FEnum(_, ef)):
                         convertType(f.t, f.pos);
-                        registerStdType("Type");
-                        ECall(EField(EIdent("Type"), "createEnum"), [map(f), EConst(CString(ef.name)), EArrayDecl(mapArray(params))]);
+                        var t = ["Type"];
+                        registerStdType(t);
+                        t.push("createEnum");
+                        ECall(pathToHExpr(t), [map(f), EConst(CString(ef.name)), EArrayDecl(mapArray(params))]);
                     case _:
                         convertType(e.t, e.pos);
                         ECall(map(e), mapArray(params));
@@ -202,9 +204,18 @@ class HScriptTypedConverter {
             case TMeta(_, e): map(e);
             case TEnumParameter(e1, _, idx):
                 convertType(e1.t, e1.pos);
-                registerStdType("Type");
-                EArray(ECall(EField(EIdent("Type"), "enumParameters"), [map(e1)]), EConst(CInt(idx)));
+                var t = ["Type"];
+                registerStdType(t);
+                t.push("enumParameters");
+                EArray(ECall(pathToHExpr(t), [map(e1)]), EConst(CInt(idx)));
         };
+    }
+
+
+    function pathToHExpr(path:Array<String>) {
+        var res = EIdent(path.shift());
+        while (path.length > 0) res = EField(res, path.shift());
+        return res;
     }
 
     function baseTypeFromModuleType(t:ModuleType):BaseType {
@@ -232,9 +243,7 @@ class HScriptTypedConverter {
         try {
             var type = Context.getType(path.join("."));
             var fullPath = TypeTools.getFullPath(type);
-            if (fullPath != null) {
-                path = fullPath;
-            }
+            if (fullPath != null) path = fullPath;
         } catch (e:Dynamic) {}
 
         if (path[0] == "StdTypes") {
