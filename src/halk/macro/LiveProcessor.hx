@@ -73,6 +73,9 @@ class LiveProcessor {
         ctorPatch = [];
         destructor = [];
 
+        var classLiveMeta = classType.meta.get().findMeta(LIVE_META);
+        var liveAllClass = classLiveMeta != null;
+
         for (f in fields) {
             var liveMeta = f.meta.findMeta(LIVE_META);
             var liveUpdateMeta = f.meta.findMeta(LIVE_UPDATE_META);
@@ -86,6 +89,7 @@ class LiveProcessor {
                 }
                 continue;
             }
+            if (liveAllClass && liveMeta == null) liveMeta = classLiveMeta;
 
             if (liveUpdateMeta != null) {
                 processLiveUpdateField(classType, f, liveUpdateMeta, liveMeta);

@@ -8,7 +8,7 @@ enum A {
     C2(i:Int);
 }
 
-class MainTest implements ILive {
+@live class MainTest implements ILive {
     public function new() {
         trace(A.C1);
     }
@@ -19,10 +19,10 @@ class MainTest implements ILive {
 
     var i:String = "tada";
 
-    @live function test(a:Int, b:Bool) {
+    function test(a:Int, b:Bool) {
         trace("live");
         trace(A);
-        trace(switch (C2(10)) {
+        trace(switch (C2(7890)) {
             case C2(b): b;
             case C1: 0;
 
@@ -48,6 +48,6 @@ class MainTest implements ILive {
         trace(p.toString());
         trace(Std.string(2) + " 23");
         trace(this.i);
-        for (r in [12]) trace(r);
+        for (r in [13]) trace(r);
     }
 }
