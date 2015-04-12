@@ -44,9 +44,8 @@ enum A {
         trace("test");
         var t:{q:Int, s:Int} = {q:1, s:2};
         trace(a);
-        trace(b);
         trace(p.toString());
-        trace(Std.string(2) + " 23");
+        trace(Std.int(2) + " 23");
         trace(this.i);
         for (r in [13]) trace(r);
     }
