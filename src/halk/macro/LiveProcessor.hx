@@ -129,9 +129,9 @@ class LiveProcessor {
         for (t in types) {
             var classData:ClassData = liveContext.findClassData(t);
             if (classData == null) continue;
-            //trace(classData);
+
             var classType:ClassType = t.getClass();
-            //trace(classType);
+
             for (f in classType.fields.get()) {
                 if (classData.fields.indexOf(f.name) == -1) continue;
                 var expr:TypedExpr;
@@ -143,8 +143,6 @@ class LiveProcessor {
                         args = a;
                     case _: throw false;
                 };
-                //trace(expr);
-                //trace(expr.toString());
 
                 var convertData = scriptConverter.convert(classType, expr);
 

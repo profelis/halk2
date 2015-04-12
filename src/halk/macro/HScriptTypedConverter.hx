@@ -85,8 +85,8 @@ class HScriptTypedConverter {
             return [for (p in arr) map(p)];
         }
 
-        inline function registerStdType() {
-            types.set("Type", ["Type"]);
+        inline function registerStdType(type:String) {
+            types.set(type, type.split("."));
         }
 
         inline function registerBaseType(type:BaseType):Void {
@@ -102,7 +102,16 @@ class HScriptTypedConverter {
             case TConst(TNull): EIdent("null");
             case TConst(TThis): EIdent("this");
             case TConst(TSuper): EIdent("super");
-            case TLocal(v): convertType(e.t, e.pos); EIdent(v.name);
+            case TLocal(v):
+                convertType(e.t, e.pos);
+                // magic "`trace" method in js target
+                if (v.name == "`trace")
+                {
+                    registerStdType("haxe.Log");
+                    EField(EField(EIdent("haxe"), "Log"), "trace");
+                }
+                else EIdent(v.name);
+
             case TArray(e1, e2): EArray(map(e1), map(e2));
             case TBinop(OpAssignOp(op), e1, e2): EBinop(binops.get(op) + "=", map(e1), map(e2));
             case TBinop(op, e1, e2): EBinop(binops.get(op), map(e1), map(e2));
@@ -130,7 +139,7 @@ class HScriptTypedConverter {
                 switch e.expr {
                     case TField(f, FEnum(_, ef)):
                         convertType(f.t, f.pos);
-                        registerStdType();
+                        registerStdType("Type");
                         ECall(EField(EIdent("Type"), "createEnum"), [map(f), EConst(CString(ef.name)), EArrayDecl(mapArray(params))]);
                     case _:
                         convertType(e.t, e.pos);
@@ -148,11 +157,11 @@ class HScriptTypedConverter {
                 var args = [];
                 for (arg in func.args) {
                     if (arg.value != null) {
-                        Context.warning("default args not implemented", e.pos);
+                        Context.warning("default args not implemented. 0/false/null will be used", e.pos);
                     }
-                    args.push({name:arg.v.name, opt:arg.value != null, t:convertType(arg.v.t, e.pos) } ); // contertComplexType(arg.type, e.pos)
+                    args.push({name:arg.v.name, opt:arg.value != null, t:convertType(arg.v.t, e.pos) } );
                 }
-                EFunction(args, map(func.expr), null, convertType(func.t, e.pos)); // ret type contertComplexType(func.ret, e.pos)
+                EFunction(args, map(func.expr), null, convertType(func.t, e.pos));
 
             case TVar(v, expr): EVar(v.name, convertType(v.t, e.pos), map(expr));
             case TBlock(el): EBlock(mapArray(el));
@@ -180,9 +189,9 @@ class HScriptTypedConverter {
             case TPatMatch: throw "unknown expr";
             case TTry(etry, catches):
                 if (catches.length > 1) {
-                    Context.warning("halk support only first catch", e.pos);
+                    Context.warning("halk support only one catch. Last catch will be used", e.pos);
                 }
-                var c = catches[0];
+                var c = catches[catches.length - 1];
                 ETry(map(etry), c.v.name, convertType(c.v.t, e.pos), map(c.expr));
 
             case TReturn(e): EReturn(map(e));
@@ -193,7 +202,7 @@ class HScriptTypedConverter {
             case TMeta(_, e): map(e);
             case TEnumParameter(e1, _, idx):
                 convertType(e1.t, e1.pos);
-                registerStdType();
+                registerStdType("Type");
                 EArray(ECall(EField(EIdent("Type"), "enumParameters"), [map(e1)]), EConst(CInt(idx)));
         };
     }

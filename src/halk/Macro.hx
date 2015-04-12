@@ -1,5 +1,6 @@
 package halk;
 
+import haxe.io.Bytes;
 import hscript.Printer;
 import halk.Macro.MacroContext;
 import haxe.Serializer;
@@ -115,6 +116,7 @@ class Macro {
 
     static function onGenerate(types:Array<haxe.macro.Type>) {
         Compiler.keep('Type');
+        Compiler.keep('haxe.Log');
 
         var context = new MacroContext();
         processor.postProcess(types, liveContext, context);
@@ -130,7 +132,9 @@ class Macro {
         }
 
         trace("Config saved: " + path);
-        File.saveContent(path, context.toFile());
+        var cont = context.toFile();
+        File.saveContent(path, cont);
+        Context.addResource(MacroContext.LIVE_FILE_NAME, Bytes.ofString(cont));
         reset();
     }
 

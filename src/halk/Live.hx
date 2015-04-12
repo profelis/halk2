@@ -1,7 +1,6 @@
 package halk;
 
-import halk.Macro.MacroContext;
-import haxe.Unserializer;
+import haxe.Resource;
 import halk.Macro.MacroContext;
 import haxe.Http;
 
@@ -27,16 +26,23 @@ class Live {
     var methods:Map<String, Dynamic>;
 
     function new() {
-        nextLoad();
+        delayedCall(firstLoad, 100);
     }
 
     inline function nextLoad() {
-        delayedCall(load, 1000);
+        delayedCall(load, 100);
+    }
+
+    function firstLoad() {
+        var cont = Resource.getString(MacroContext.LIVE_FILE_NAME);
+//        trace(cont);
+        if (cont != null) onData(cont);
+        else onError(null);
     }
 
     function load() {
         #if sys
-//        trace(FileSystem.readDirectory(Sys.getCwd()));
+//        trace(sys.FileSystem.readDirectory(Sys.getCwd()));
         var data:String = null;
         try {
             data = File.getContent(MacroContext.LIVE_FILE_NAME);
@@ -108,6 +114,8 @@ class Live {
 //        trace(vars);
 
         methods = [for (m in data.methods.keys()) m => interp.execute(data.methods[m])];
+
+//        trace(methods);
 
         updateListeners();
     }
