@@ -19,7 +19,7 @@ enum A {
 
     var i:String = "tada";
 
-    function test(a:Int, b:Bool) {
+    @noLive function test(a:Int, b:Bool) {
         trace("live");
         trace(A);
         trace(switch (C2(7890)) {

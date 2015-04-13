@@ -56,6 +56,7 @@ class LiveProcessorContext {
 class LiveProcessor {
 
     static inline var LIVE_META = "live";
+    static inline var NO_LIVE_META = "noLive";
     static inline var LIVE_UPDATE_META = "liveUpdate";
 
     public function new() {}
@@ -80,6 +81,7 @@ class LiveProcessor {
         var liveAllClass = classLiveMeta != null;
 
         for (f in fields) {
+            var blockLive = f.meta.findMeta(NO_LIVE_META) != null;
             var liveMeta = f.meta.findMeta(LIVE_META);
             var liveUpdateMeta = f.meta.findMeta(LIVE_UPDATE_META);
 
@@ -95,9 +97,9 @@ class LiveProcessor {
             if (liveAllClass && liveMeta == null) liveMeta = classLiveMeta;
 
             if (liveUpdateMeta != null) {
-                processLiveUpdateField(classType, f, liveUpdateMeta, liveMeta);
+                processLiveUpdateField(classType, f, liveUpdateMeta, blockLive ? null : liveMeta);
             }
-            else if (liveMeta != null) {
+            else if (!blockLive && liveMeta != null) {
                 processLiveField(classType, f, liveMeta);
             }
         }
