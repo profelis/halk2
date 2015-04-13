@@ -50,7 +50,6 @@ class LiveProcessorContext {
 
 }
 
-// TODO: @noLive exclude
 // TODO: super support (fake callSuper$MethodName$ function)
 // TODO: live ctor
 class LiveProcessor {

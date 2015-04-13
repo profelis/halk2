@@ -1,6 +1,5 @@
 package test;
 import haxe.io.Path;
-import halk.Live;
 import halk.ILive;
 
 enum A {
@@ -11,6 +10,7 @@ enum A {
 @live class MainTest implements ILive {
     public function new() {
         trace(A.C1);
+        test2();
     }
 
     @liveUpdate function test2() {
@@ -19,7 +19,7 @@ enum A {
 
     var i:String = "tada";
 
-    @noLive function test(a:Int, b:Bool) {
+    function test(a:Int, b:Bool) {
         trace("live");
         trace(A);
         trace(switch (C2(7890)) {
@@ -35,7 +35,6 @@ enum A {
         a = new Array();
         a = new Array<Int>();
 
-        var l:Live;
         var p:Path = new Path("/root/lib");
 
         a[0] = 1;

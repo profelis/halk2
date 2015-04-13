@@ -156,6 +156,8 @@ class Macro {
 
     macro static public function build():Array<Field> {
 
+        if (!Context.defined("halk")) return null;
+
         Context.onMacroContextReused(onMacroContextReused);
         Context.onGenerate(onGenerate);
 

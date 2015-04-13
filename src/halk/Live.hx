@@ -3,6 +3,8 @@ package halk;
 import haxe.Resource;
 import halk.Macro.MacroContext;
 
+#if halk
+
 #if sys
 import sys.io.File;
 #else
@@ -13,6 +15,7 @@ using StringTools;
 
 
 class Live {
+
 
     static public var instance(default, null) = new Live();
 
@@ -25,7 +28,9 @@ class Live {
     var methods:Map<String, Dynamic>;
 
     function new() {
+        #if halk
         delayedCall(firstLoad, 100);
+        #end
     }
 
     inline function nextLoad() {
@@ -154,3 +159,5 @@ class Live {
         #end
     }
 }
+
+#end
