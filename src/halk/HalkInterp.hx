@@ -14,11 +14,15 @@ class HalkInterp extends Interp {
         return v;
     }
 
-//    function fcall( o : Dynamic, f : String, args : Array<Dynamic> ) : Dynamic {
+//    override function fcall( o : Dynamic, f : String, args : Array<Dynamic> ) : Dynamic {
+//        trace(o);
+//        trace(f);
 //        return call(o, Reflect.field(o, f), args);
 //    }
 //
-//    function call( o : Dynamic, f : Dynamic, args : Array<Dynamic> ) : Dynamic {
+//    override function call( o : Dynamic, f : Dynamic, args : Array<Dynamic> ) : Dynamic {
+//        trace(o);
+//        trace(f);
 //        return Reflect.callMethod(o,f,args);
 //    }
 

@@ -18,6 +18,8 @@ class HScriptTypedConverter {
 
     static var breakedId:Int = 0;
 
+    var superReplacer:SuperReplacer;
+
     public function new() {
 
         binops = new Map();
@@ -68,9 +70,9 @@ class HScriptTypedConverter {
         }
     }
 
-    public function convert(type:ClassType, expr:TypedExpr):{e:hscript.Expr, types:Map<String, Array<String>>} {
+    public function convert(type:ClassType, expr:TypedExpr, superReplacer:SuperReplacer):{e:hscript.Expr, types:Map<String, Array<String>>} {
+        this.superReplacer = superReplacer;
         types = new Map();
-
 //        trace(expr.toString());
         var e:hscript.Expr = map(expr);
 //        trace(e.toString());
@@ -118,13 +120,14 @@ class HScriptTypedConverter {
             case TBinop(OpAssignOp(op), e1, e2): EBinop(binops.get(op) + "=", map(e1), map(e2));
             case TBinop(op, e1, e2): EBinop(binops.get(op), map(e1), map(e2));
             case TField(e, field):
-                convertType(e.t, e.pos);
-                var f = switch field {
-                    case FInstance(_, t) | FStatic(_, t) | FAnon(t) | FClosure(_, t): t.get().name;
-                    case FDynamic(s): s;
-                    case FEnum(_, ef): ef.name;
-                };
-                EField(map(e), f);
+                var f = fieldName(field);
+                switch e.expr {
+                    case TConst(TSuper):
+                        pathToHExpr(["this", superReplacer.replaceName(f)]);
+                    case _:
+                        convertType(e.t, e.pos);
+                        EField(map(e), f);
+                }
 
             case TTypeExpr(cl):
                 var baseType = baseTypeFromModuleType(cl);
@@ -211,6 +214,13 @@ class HScriptTypedConverter {
         };
     }
 
+    function fieldName(field:FieldAccess):String {
+        return switch field {
+            case FInstance(_, t) | FStatic(_, t) | FAnon(t) | FClosure(_, t): t.get().name;
+            case FDynamic(s): s;
+            case FEnum(_, ef): ef.name;
+        };
+    }
 
     function pathToHExpr(path:Array<String>) {
         var res = EIdent(path.shift());

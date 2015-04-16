@@ -7,7 +7,23 @@ enum A {
     C2(i:Int);
 }
 
-@live class MainTest implements ILive {
+class Root {
+    function rootA() {
+        trace("super");
+    }
+
+    public var a:String;
+    public var b(get_b, never):String;
+    @:isVar public var c(never, set_c):String;
+
+    function get_b() return "Root::b";
+    function set_c(value) {
+        trace(value);
+        return c = value;
+    }
+}
+
+@live class MainTest extends Root implements ILive {
     public function new() {
         trace(A.C1);
         test2();
@@ -20,6 +36,9 @@ enum A {
     var i:String = "tada";
 
     function test(a:Int, b:Bool) {
+        super.rootA();
+        trace(super.b);
+        super.c = "TOTO";
         trace("live");
         trace(A);
         trace(switch (C2(7890)) {

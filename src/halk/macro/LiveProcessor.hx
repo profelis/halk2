@@ -50,7 +50,7 @@ class LiveProcessorContext {
 
 }
 
-// TODO: super support (fake callSuper$MethodName$ function)
+// TODO: static methods update
 // TODO: live ctor
 class LiveProcessor {
 
@@ -66,7 +66,8 @@ class LiveProcessor {
 
     var classData:ClassData;
 
-    var scriptConverter:HScriptTypedConverter = new HScriptTypedConverter();
+    var scriptConverter = new HScriptTypedConverter();
+    var superReplacer = new SuperReplacer();
     var macroContext:MacroContext;
 
     public function process(classType:ClassType, fields:Array<Field>, liveContext:LiveProcessorContext):Array<Field> {
@@ -130,6 +131,11 @@ class LiveProcessor {
             additionalFields.push(destType.fields[0]);
         }
 
+        if (additionalFields.length > 0) {
+            for (f in superReplacer.generateSupers(classType))
+                additionalFields.push(f);
+        }
+
         return fields.concat(additionalFields);
     }
 
@@ -152,7 +158,7 @@ class LiveProcessor {
                     case _: throw false;
                 };
 
-                var convertData = scriptConverter.convert(classType, expr);
+                var convertData = scriptConverter.convert(classType, expr, superReplacer);
 
                 var fArg:Array<Argument> = [for (arg in args) {name:arg.v.name, opt:arg.value != null}];
                 macroContext.methods.set(classData.name + "." + f.name, hscript.Expr.EFunction(fArg, convertData.e));
