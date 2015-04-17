@@ -1,5 +1,7 @@
 package halk.macro;
 
+#if macro
+
 import haxe.macro.Expr.MetadataEntry;
 
 class MetaTools {
@@ -15,3 +17,5 @@ class MetaTools {
         return res;
     }
 }
+
+#end

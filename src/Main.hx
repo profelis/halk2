@@ -1,19 +1,21 @@
 package ;
 
 
-import test.MainTest;
+import halk.ILive;
+import test.Tests;
 import lime.app.Application;
 
 
-class Main extends Application {
-	
-	
-	public function new () {
-		
-		super ();
+class Main extends Application implements ILive {
 
-        var main = new MainTest();
-	}
-	
-	
+    public function new () {
+        super ();
+    }
+
+    @liveUpdate public function live() {
+
+        Tests.main();
+    }
+
+
 }

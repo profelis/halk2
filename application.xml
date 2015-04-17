@@ -8,6 +8,7 @@
 	
 	<haxelib name="lime" />
 	<haxelib name="hscript" />
+	<haxelib name="buddy" />
 
     <haxeflag name="--no-inline"/>
     <haxeflag name="-D halk"/>

@@ -1,5 +1,7 @@
 package halk.macro;
 
+#if macro
+
 import halk.macro.TypeTools;
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -14,10 +16,13 @@ class SuperReplacer {
 
     var prefix = "super_";
 
+    var added:Map<String, Bool>;
+
     public function new() {}
 
     public function generateSupers(type:ClassType):Array<Field> {
         var res = [];
+        added = new Map<String, Bool>();
         generate(type, res);
 //        for (f in res) {
 //            trace(f.name);
@@ -40,9 +45,12 @@ class SuperReplacer {
 
     function generate(type:ClassType, res:Array<Field>) {
 
+
         for (f in type.fields.get()) {
 
             inline function add(name:String, fielfType:FieldType) {
+                if (added.exists(name)) return;
+                added[name] = true;
                 res.push({
                     name : name,
                     doc : null,
@@ -117,3 +125,4 @@ class SuperReplacer {
             generate(parent.t.get(), res);
     }
 }
+#end

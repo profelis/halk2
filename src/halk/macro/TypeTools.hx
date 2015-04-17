@@ -1,5 +1,6 @@
 package halk.macro;
 
+#if macro
 import haxe.macro.Expr.ComplexType;
 import haxe.macro.Type.BaseType;
 
@@ -40,3 +41,4 @@ class BaseTypeTools {
         }
     }
 }
+#end

@@ -1,5 +1,7 @@
 package halk.macro;
 
+#if macro
+
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -296,3 +298,5 @@ class HScriptTypedConverter {
         }
     }
 }
+
+#end

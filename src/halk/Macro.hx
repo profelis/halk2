@@ -68,8 +68,6 @@ class MacroContext {
 class Macro {
 
     #if macro
-    static var processor = new LiveProcessor();
-
     static var liveContext = new LiveProcessorContext();
 
     static inline function reset() {
@@ -127,6 +125,7 @@ class Macro {
         Compiler.keep('haxe.Log');
 
         var context = new MacroContext();
+        var processor = new LiveProcessor();
         processor.postProcess(types, liveContext, context);
 
         var path = getOutPath();
@@ -166,6 +165,7 @@ class Macro {
         if (liveContext.isRegistered(classType)) return null;
 
         var fields = Context.getBuildFields();
+        var processor = new LiveProcessor();
         return processor.process(classType, fields, liveContext);
     }
 }
