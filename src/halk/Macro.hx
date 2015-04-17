@@ -70,8 +70,11 @@ class Macro {
     #if macro
     static var liveContext = new LiveProcessorContext();
 
+    static var registered = false;
+
     static inline function reset() {
         liveContext = new LiveProcessorContext();
+        registered = false;
     }
 
     // todo: refactor this shit
@@ -127,6 +130,7 @@ class Macro {
         var context = new MacroContext();
         var processor = new LiveProcessor();
         processor.postProcess(types, liveContext, context);
+//        trace(context);
 
         var path = getOutPath();
         try {
@@ -157,8 +161,11 @@ class Macro {
 
         if (!Context.defined("halk")) return null;
 
-        Context.onMacroContextReused(onMacroContextReused);
-        Context.onGenerate(onGenerate);
+        if (!registered) {
+            registered = true;
+            Context.onMacroContextReused(onMacroContextReused);
+            Context.onGenerate(onGenerate);
+        }
 
         var classType = Context.getLocalType().getClass();
 

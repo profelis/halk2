@@ -175,7 +175,6 @@ class LiveProcessor {
                 Context.error("${LIVE_UPDATE_META} functions doesn't support args", field.pos);
             }
             var fn = field.name;
-                trace(type.name + " " + fn);
             ctorPatch.push(macro halk.Live.instance.addListener(this.$fn));
             destructor.push(macro halk.Live.instance.removeListener(this.$fn));
             case _:

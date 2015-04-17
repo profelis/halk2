@@ -2,10 +2,6 @@ package test;
 import haxe.io.Path;
 import halk.ILive;
 
-enum A {
-    C1;
-    C2(i:Int);
-}
 
 class Root {
     function rootA() {
@@ -25,7 +21,6 @@ class Root {
 
 @live class MainTest extends Root implements ILive {
     public function new() {
-        trace(A.C1);
         test2();
     }
 
@@ -40,12 +35,6 @@ class Root {
         trace(super.b);
         super.c = "TOTO";
         trace("live");
-        trace(A);
-        trace(switch (C2(7890)) {
-            case C2(b): b;
-            case C1: 0;
-
-        });
         var i = 9;
         do {
             trace(i);
