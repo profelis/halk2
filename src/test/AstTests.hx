@@ -6,6 +6,7 @@ import buddy.BuddySuite;
 
 using buddy.Should;
 
+// TODO: super, nesting
 class AstTests extends BuddySuite {
     public function new() {
 
@@ -64,7 +65,12 @@ class AstTests extends BuddySuite {
                     a.doBadCast();
                     fail();
                 } catch(e:Dynamic) {}
+            });
 
+            it("enum tests", function () {
+                a.execEnums().should.be(0);
+                a.execIntEnum().should.be(true);
+                a.execStringEnum().should.be(true);
             });
 
 
@@ -183,6 +189,44 @@ class AstTests extends BuddySuite {
         return a[0];
     }
 
-// enum
-// super, nesting
+    function execEnums() {
+        var a = A2(10);
+
+        return switch a {
+            case EnumA.A1: 10;
+            case A2(5): 5;
+            case EnumA.A2(t): t - 10;
+        }
+    }
+
+    @noLive function enumI1() return I1;
+
+    function execIntEnum() {
+        var a = I1;
+        var b = enumI1();
+        return a == b;
+    }
+
+    @noLive function enumS2() return S2;
+
+    function execStringEnum() {
+        var a = S2;
+        var b = enumS2();
+        return a == b;
+    }
+}
+
+enum EnumA {
+    A1;
+    A2(c:Int);
+}
+
+@:fakeEnum(Int) enum EnumInt {
+    I1;
+    I2;
+}
+
+@:fakeEnum(String) enum EnumString {
+    S1;
+    S2;
 }

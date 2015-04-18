@@ -75,6 +75,7 @@ class HScriptTypedConverter {
     public function convert(type:ClassType, expr:TypedExpr, superReplacer:SuperReplacer):{e:hscript.Expr, types:Map<String, Array<String>>} {
         this.superReplacer = superReplacer;
         types = new Map();
+//        trace(expr);
 //        trace(expr.toString());
         var e:hscript.Expr = map(expr);
 //        trace(e.toString());
@@ -123,13 +124,39 @@ class HScriptTypedConverter {
             case TBinop(op, e1, e2): EBinop(binops.get(op), map(e1), map(e2));
             case TField(e, field):
                 var f = fieldName(field);
-                switch e.expr {
+                var res = null;
+                var type = e.t;
+
+                var isEnum = false;
+                switch e.t {
+                    case TType(_.get() => t, _) if (t.name.indexOf("Enum<") == 0): isEnum = true;
+                    case _:
+                }
+                if (isEnum) switch field {
+                    case FEnum(_.get() => e, f) if (e.meta.has(":fakeEnum")):
+                        var meta = e.meta.get();
+                        for (m in meta) if (m.name == ":fakeEnum") {
+                            convertType(type, e.pos);
+                            res = switch m.params {
+                                case [{expr:EConst(CIdent("String"))}]:
+                                    EConst(CString(f.name));
+                                case [{expr:EConst(CIdent("Int"))}]:
+                                    EConst(CInt(f.index));
+                                case _:
+                                    throw "unknown fake enum";
+                            }
+                            break;
+                        }
+                    case _:
+                }
+                if (res == null) res = switch e.expr {
                     case TConst(TSuper):
                         pathToHExpr(["this", superReplacer.replaceName(f)]);
                     case _:
-                        convertType(e.t, e.pos);
+                        convertType(type, e.pos);
                         EField(map(e), f);
                 }
+            res;
 
             case TTypeExpr(cl):
                 var baseType = baseTypeFromModuleType(cl);
@@ -170,7 +197,8 @@ class HScriptTypedConverter {
                 }
                 EFunction(args, map(func.expr), null, convertType(func.t, e.pos));
 
-            case TVar(v, expr): EVar(v.name, convertType(v.t, e.pos), map(expr));
+            case TVar(v, expr):
+                EVar(v.name, convertType(v.t, e.pos), map(expr));
             case TBlock(el): EBlock(mapArray(el));
             case TFor(v, it, expr): EFor(v.name, map(it), map(expr));
             case TIf(econd, eif, eelse): EIf(map(econd), map(eif), map(eelse));
@@ -251,7 +279,17 @@ class HScriptTypedConverter {
     }
 
     function contertTypePath(p:TypePath, pos:Position):CType {
-        var path = p.pack.length > 0 ? p.pack.concat([p.name]) : [p.name];
+        var sub = if (p.sub == null) "";
+        else if (p.sub.indexOf("Class<") == 0) p.sub.substring(6, p.sub.length-1);
+        else if (p.sub.indexOf("Enum<") == 0) p.sub.substring(5, p.sub.length-1);
+        else p.sub;
+
+        var path:Array<String> = p.pack.length > 0 ? p.pack.concat([p.name]) : [p.name];
+        if (sub.length > 0) {
+            var subPath = sub.split(".");
+            path.push(subPath[subPath.length - 1]);
+        }
+//        trace('$path <- ${p.pack} ${p.name} ${p.sub}');
         try {
             var type = Context.getType(path.join("."));
             var fullPath = TypeTools.getFullPath(type);
