@@ -28,6 +28,7 @@ class AstTests extends BuddySuite {
             it("test throws", function () {
                 try {
                     a.doThrow(true);
+                    fail();
                 } catch (e:Dynamic) {
                     e.should.be(false);
                 }
@@ -55,6 +56,18 @@ class AstTests extends BuddySuite {
             it("function.bind tests", function () {
                 a.funcBind().should.be("22");
             });
+
+            it("cast tests", function () {
+                a.doCast().should.be(0);
+
+                try {
+                    a.doBadCast();
+                    fail();
+                } catch(e:Dynamic) {}
+
+            });
+
+
         });
     }
 }
@@ -151,8 +164,25 @@ class AstTests extends BuddySuite {
         return f2(2);
     }
 
-// cast
+    function doCast() {
+        var s:Dynamic = [1, 2];
+        var a = cast(s, Array<Dynamic>);
+
+        var i = a[0] + a[1]; // 3
+
+        var b:Array<Int> = cast s;
+
+        i += b[1]; // 5
+
+        return i - 5;
+    }
+
+    function doBadCast() {
+        var s:Dynamic = "foo";
+        var a = cast(s, Array<Dynamic>);
+        return a[0];
+    }
+
 // enum
-// super
-// nesting
+// super, nesting
 }

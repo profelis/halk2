@@ -28,7 +28,7 @@ class LiveProcessorContext {
 
     var classes:Map<String, ClassData> = new Map();
 
-    public function new() {}
+    public inline function new() {}
 
     public inline function isRegistered(type:ClassType) {
         return classes.exists(key(type));

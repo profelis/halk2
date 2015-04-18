@@ -143,7 +143,7 @@ class Live {
         }
     }
 
-    function updateListeners() {
+    inline function updateListeners() {
         for (l in listeners.copy()) l();
     }
 

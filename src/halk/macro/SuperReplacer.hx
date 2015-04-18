@@ -31,7 +31,7 @@ class SuperReplacer {
         return res;
     }
 
-    inline function constToexpr(c:TConstant):Expr {
+    inline function constToExpr(c:TConstant):Expr {
         return switch c {
             case TInt(i): macro $v{i};
             case TFloat(s): macro $v{Std.parseFloat(s)};
@@ -76,7 +76,7 @@ class SuperReplacer {
                                 name : a.v.name,
                                 opt : a.value != null,
                                 type : TypeTools.toComplexType(a.v.t),
-                                value : a.value == null ? null : constToexpr(a.value)
+                                value : a.value == null ? null : constToExpr(a.value)
                             }];
                             var params = [for (a in fn.args) macro $i{a.v.name}];
                             addFn(replaceName(f.name), {

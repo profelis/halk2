@@ -205,7 +205,7 @@ class HScriptTypedConverter {
             case TBreak: EBreak;
             case TContinue: EContinue;
             case TThrow(e): EThrow(map(e));
-            case TCast(e, t): registerBaseType(baseTypeFromModuleType(t)); map(e);
+            case TCast(e, t): if (t != null) registerBaseType(baseTypeFromModuleType(t)); map(e);
             case TMeta(_, e): map(e);
             case TEnumParameter(e1, _, idx):
                 convertType(e1.t, e1.pos);
@@ -216,7 +216,7 @@ class HScriptTypedConverter {
         };
     }
 
-    function fieldName(field:FieldAccess):String {
+    inline function fieldName(field:FieldAccess):String {
         return switch field {
             case FInstance(_, t) | FStatic(_, t) | FAnon(t) | FClosure(_, t): t.get().name;
             case FDynamic(s): s;
@@ -224,13 +224,13 @@ class HScriptTypedConverter {
         };
     }
 
-    function pathToHExpr(path:Array<String>) {
+    inline function pathToHExpr(path:Array<String>) {
         var res = EIdent(path.shift());
         while (path.length > 0) res = EField(res, path.shift());
         return res;
     }
 
-    function baseTypeFromModuleType(t:ModuleType):BaseType {
+    inline function baseTypeFromModuleType(t:ModuleType):BaseType {
         return switch t {
             case TClassDecl(r): r.get();
             case TEnumDecl(r): var res = r.get();
