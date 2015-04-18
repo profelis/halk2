@@ -91,6 +91,10 @@ class Live {
         interp = new HalkInterp();
         var vars:Map<String, Dynamic> = interp.variables;
 
+        #if js
+        vars["__new__"] = function (t) return untyped __new__(t);
+        #end
+
         for (n in data.types.keys()) {
             var t:Array<String> = data.types[n];
             var type:Dynamic = Type.resolveClass(n);

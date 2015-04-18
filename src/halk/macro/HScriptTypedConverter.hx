@@ -127,27 +127,29 @@ class HScriptTypedConverter {
                 var res = null;
                 var type = e.t;
 
-                var isEnum = false;
-                switch e.t {
-                    case TType(_.get() => t, _) if (t.name.indexOf("Enum<") == 0): isEnum = true;
-                    case _:
-                }
-                if (isEnum) switch field {
-                    case FEnum(_.get() => e, f) if (e.meta.has(":fakeEnum")):
-                        var meta = e.meta.get();
-                        for (m in meta) if (m.name == ":fakeEnum") {
-                            convertType(type, e.pos);
-                            res = switch m.params {
-                                case [{expr:EConst(CIdent("String"))}]:
-                                    EConst(CString(f.name));
-                                case [{expr:EConst(CIdent("Int"))}]:
-                                    EConst(CInt(f.index));
-                                case _:
-                                    throw "unknown fake enum";
+                if (!Context.defined("html5") && !Context.defined("neko")) {
+                    var isEnum = false;
+                    switch e.t {
+                        case TType(_.get() => t, _) if (t.name.indexOf("Enum<") == 0): isEnum = true;
+                        case _:
+                    }
+                    if (isEnum) switch field {
+                        case FEnum(_.get() => e, f) if (e.meta.has(":fakeEnum")):
+                            var meta = e.meta.get();
+                            for (m in meta) if (m.name == ":fakeEnum") {
+                                convertType(type, e.pos);
+                                res = switch m.params {
+                                    case [{expr:EConst(CIdent("String"))}]:
+                                        EConst(CString(f.name));
+                                    case [{expr:EConst(CIdent("Int"))}]:
+                                        EConst(CInt(f.index));
+                                    case _:
+                                        throw "unknown fake enum";
+                                }
+                                break;
                             }
-                            break;
-                        }
-                    case _:
+                        case _:
+                    }
                 }
                 if (res == null) res = switch e.expr {
                     case TConst(TSuper):

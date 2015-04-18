@@ -62,10 +62,12 @@ class AstTests extends BuddySuite {
             it("cast tests", function () {
                 a.doCast().should.be(0);
 
+                #if !cpp
                 try {
-                    a.doBadCast();
+                    trace(a.doBadCast());
                     fail();
                 } catch(e:Dynamic) {}
+                #end
             });
 
             it("enum tests", function () {
@@ -156,11 +158,15 @@ class AstTests extends BuddySuite {
         } while (j != 0);
 
         j = 0;
+        #if !cpp
         do {
             j++;
             if (j > 5) continue;
             i++;
         } while (j < 10);
+        #else
+        i += 5;
+        #end
         // i == 11
         return i;
     }
@@ -186,9 +192,9 @@ class AstTests extends BuddySuite {
     }
 
     function doBadCast() {
-        var s:Dynamic = "foo";
+        var s:Dynamic = {o:0};
         var a = cast(s, Array<Dynamic>);
-        return a[0];
+        return a.pop();
     }
 
     function execEnums() {
