@@ -316,30 +316,36 @@ class HScriptTypedConverter {
     function contertComplexType(type:ComplexType, pos:Position):CType {
         if (type == null) return null;
 
+        inline function processAnonFields(fields:Array<Field>) {
+            var res = [];
+            for (f in fields) {
+                var name = f.name;
+                switch f.kind {
+                    case FVar(t, e):
+                        if (e != null) Context.error('default values are not supported in anonymous structs', pos);
+                        res.push({name: name, t: contertComplexType(t, pos)});
+
+                    case FProp(_, _):
+                        Context.error('properties are not supported in anonymous structs', pos);
+
+                    case FFun(f):
+                        var type = CTFun([for (a in f.args) contertComplexType(a.type, pos)], contertComplexType(f.ret, pos));
+                        res.push({name: name, t: type});
+                }
+            }
+            return res;
+        }
+
         return switch type {
             case TPath(p):
                 contertTypePath(p, pos);
             case TFunction(args, ret): CTFun([for (a in args) contertComplexType(a, pos)], contertComplexType(ret, pos));
-            case TExtend(_, fields) | TAnonymous(fields):
-                var res = [];
-                for (f in fields) {
-                    var name = f.name;
-                    switch f.kind {
-                        case FVar(t, e):
-                            if (e != null) Context.error('default values are not supported in anonymous structs', pos);
-                            res.push({name: name, t: contertComplexType(t, pos)});
-
-                        case FProp(_, _):
-                            Context.error('properties are not supported in anonymous structs', pos);
-
-                        case FFun(f):
-                            var type = CTFun([for (a in f.args) contertComplexType(a.type, pos)], contertComplexType(f.ret, pos));
-                            res.push({name: name, t: type});
-                    }
-                }
-                CTAnon(res);
+            case TAnonymous(fields): CTAnon(processAnonFields(fields));
             case TParent(t): CTParent(contertComplexType(t, pos));
-            //case TExtend(p, fields): throw "not implemented"; // TODO: FIX: case TExtend(_, fields) | TAnonymous(fields):
+            case TExtend(p, fields):
+                for (t in p) contertTypePath(t, pos);
+                CTAnon(processAnonFields(fields));
+
             case TOptional(t): contertComplexType(t, pos);
         }
     }
