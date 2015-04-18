@@ -7,7 +7,6 @@ import buddy.BuddySuite;
 using buddy.Should;
 
 // TODO: super, nesting
-// TODO: Abstract
 class AstTests extends BuddySuite {
     public function new() {
 
@@ -79,6 +78,7 @@ class AstTests extends BuddySuite {
 
             it("abstracts tests", function () {
                a.dynamicAbstract().should.be("foo");
+               a.arrayAbstract().should.be(0);
             });
         });
     }
@@ -237,6 +237,12 @@ class AstTests extends BuddySuite {
         var a:DynamicAbstract<String> = {t:"foo"};
         return a.value();
     }
+
+    function arrayAbstract() {
+        var a = new ArrayAbstract<Float>([1.0, 2.0, 3.0]);
+
+        return a[2] - a[1] - a[0];
+    }
 }
 
 enum EnumA {
@@ -262,4 +268,8 @@ enum EnumA {
 abstract DynamicAbstract<T>({t:T}) from {t:T} to {t:T} {
 
     public function value():Null<T> return this != null ? this.t : null;
+}
+
+@:forward @:arrayAccess abstract ArrayAbstract<T>(Array<T>) {
+    public function new(a:Array<T>) this = a;
 }
