@@ -7,6 +7,7 @@ import buddy.BuddySuite;
 using buddy.Should;
 
 // TODO: super, nesting
+// TODO: Abstract
 class AstTests extends BuddySuite {
     public function new() {
 
@@ -71,6 +72,7 @@ class AstTests extends BuddySuite {
                 a.execEnums().should.be(0);
                 a.execIntEnum().should.be(true);
                 a.execStringEnum().should.be(true);
+                a.execAbstractEnum().should.be(true);
             });
 
 
@@ -214,6 +216,15 @@ class AstTests extends BuddySuite {
         var b = enumS2();
         return a == b;
     }
+
+    @noLive function enumE2() return EnumAbstract.E2;
+
+    function execAbstractEnum() {
+        var a = EnumAbstract.E1;
+        if (a == enumE2()) throw false;
+        return EnumAbstract.E2 == enumE2();
+
+    }
 }
 
 enum EnumA {
@@ -229,4 +240,9 @@ enum EnumA {
 @:fakeEnum(String) enum EnumString {
     S1;
     S2;
+}
+
+@:enum abstract EnumAbstract(String) {
+    var E1 = "a";
+    var E2 = "b";
 }
