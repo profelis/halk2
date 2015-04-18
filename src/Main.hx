@@ -13,9 +13,6 @@ class Main extends Application implements ILive {
     }
 
     @liveUpdate public function live() {
-
         Tests.main();
     }
-
-
 }
