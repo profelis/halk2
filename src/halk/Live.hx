@@ -97,6 +97,7 @@ class Live {
 
         for (n in data.types.keys()) {
             var t:Array<String> = data.types[n];
+//            trace(n + " -> " + t);
             var type:Dynamic = Type.resolveClass(n);
             if (type == null) type = Type.resolveEnum(n);
             if (type == null) continue;
@@ -108,8 +109,15 @@ class Live {
                     if (!vars.exists(s)) vars.set(s, end = {});
                     else end = vars.get(s);
                 }
-                else if (!Reflect.hasField(end, s)) {
-                    Reflect.setField(end, s, end = {});
+                else
+                {
+                    if (!Reflect.hasField(end, s)) {
+                        var newEnd = {};
+                        Reflect.setField(end, s, newEnd);
+                        end = newEnd;
+                    } else {
+                        end = Reflect.field(end, s);
+                    }
                 }
             }
             if (end == null) {

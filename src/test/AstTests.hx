@@ -77,7 +77,9 @@ class AstTests extends BuddySuite {
                 a.execAbstractEnum().should.be(true);
             });
 
-
+            it("abstracts tests", function () {
+               a.dynamicAbstract().should.be("foo");
+            });
         });
     }
 }
@@ -229,7 +231,11 @@ class AstTests extends BuddySuite {
         var a = EnumAbstract.E1;
         if (a == enumE2()) throw false;
         return EnumAbstract.E2 == enumE2();
+    }
 
+    function dynamicAbstract() {
+        var a:DynamicAbstract<String> = {t:"foo"};
+        return a.value();
     }
 }
 
@@ -251,4 +257,9 @@ enum EnumA {
 @:enum abstract EnumAbstract(String) {
     var E1 = "a";
     var E2 = "b";
+}
+
+abstract DynamicAbstract<T>({t:T}) from {t:T} to {t:T} {
+
+    public function value():Null<T> return this != null ? this.t : null;
 }

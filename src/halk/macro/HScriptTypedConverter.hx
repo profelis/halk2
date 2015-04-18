@@ -281,17 +281,23 @@ class HScriptTypedConverter {
     }
 
     function contertTypePath(p:TypePath, pos:Position):CType {
-        var sub = if (p.sub == null) "";
-        else if (p.sub.indexOf("Class<") == 0) p.sub.substring(6, p.sub.length-1);
-        else if (p.sub.indexOf("Enum<") == 0) p.sub.substring(5, p.sub.length-1);
-        else p.sub;
-
-        var path:Array<String> = p.pack.length > 0 ? p.pack.concat([p.name]) : [p.name];
-        if (sub.length > 0) {
-            var subPath = sub.split(".");
-            path.push(subPath[subPath.length - 1]);
+        var path:Array<String> = null;
+        var sub = null;
+        if (p.sub != null) {
+            if (p.sub.indexOf("Class<") == 0) sub = p.sub.substring(6, p.sub.length-1);
+            else if (p.sub.indexOf("Enum<") == 0) sub = p.sub.substring(5, p.sub.length-1);
+            else sub = p.sub;
+            if (sub != null) path = sub.split(".");
         }
-//        trace('$path <- ${p.pack} ${p.name} ${p.sub}');
+
+        if (path == null) {
+            path = p.pack.length > 0 ? p.pack.concat([p.name]) : [p.name];
+            if (sub != null) {
+                var subPath = sub.split(".");
+                path.push(subPath[subPath.length - 1]);
+            }
+        }
+
         try {
             var type = Context.getType(path.join("."));
             var fullPath = TypeTools.getFullPath(type);

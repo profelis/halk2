@@ -32,13 +32,10 @@ class TypeTools {
 class BaseTypeTools {
 
     static public inline function baseTypePath(t:BaseType):Array<String> {
-        return if (t == null) {
+        return if (t == null)
             null;
-        } else if (t.module.endsWith(t.name)) {
-            t.module.split(".");
-        } else {
-            t.module.length > 0 ? t.module.split(".").concat([t.name]) : [t.name];
-        }
+        else
+            t.pack.length > 0 ? t.pack.concat([t.name]) : [t.name];
     }
 }
 #end
