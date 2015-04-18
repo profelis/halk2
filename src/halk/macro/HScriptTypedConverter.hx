@@ -286,8 +286,8 @@ class HScriptTypedConverter {
         if (p.sub != null) {
             if (p.sub.indexOf("Class<") == 0) sub = p.sub.substring(6, p.sub.length-1);
             else if (p.sub.indexOf("Enum<") == 0) sub = p.sub.substring(5, p.sub.length-1);
-            else sub = p.sub;
             if (sub != null) path = sub.split(".");
+            else sub = p.sub;
         }
 
         if (path == null) {
