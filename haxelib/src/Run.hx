@@ -146,17 +146,40 @@ class Run {
 
         var p:Process;
 
-        inline function redirectOutput(parse = false) {
+        inline function redirectOutput(logOut:Bool, logError:Bool, parse = false) {
             var s:String;
-            while (null != (s = readLine(p.stderr))) {
-                if (parse) parseHaxeExec(s);
-                Sys.stderr().writeString(s + "\n");
+            var del = Sys.systemName() == "Windows" ? "\n\r" : "\n";
+
+            if (logOut) {
+                trace("@@@1");
+
+                var out = Sys.stdout();
+                try {
+                    while (true) {
+                        s = p.stdout.readLine();
+                        if (parse) parseHaxeExec(s);
+                        out.writeString(s + del);
+                        out.flush();
+//                        Sys.sleep(0.01);
+                    }
+                } catch (e:Dynamic) {}
             }
 
-            while (null != (s = readLine(p.stdout))) {
-                if (parse) parseHaxeExec(s);
-                Sys.stdout().writeString(s + "\n");
+            if (logError) {
+                trace("@@@0");
+                var err = Sys.stdout();
+                try {
+                    while (true) {
+                        s = p.stderr.readLine();
+                        if (parse) parseHaxeExec(s);
+                        err.writeString(s + del);
+                        err.flush();
+//                        Sys.sleep(0.01);
+                    }
+                } catch (e:Dynamic) {}
             }
+
+            trace("@@@2");
         }
 
         switch buildType {
@@ -166,7 +189,7 @@ class Run {
                 args.unshift("lime");
                 args.unshift("run");
                 p = new Process("haxelib", args);
-                redirectOutput();
+                redirectOutput(true, true);
 
                 if (p.exitCode() != 0) Sys.exit(p.exitCode());
 
@@ -179,7 +202,7 @@ class Run {
                 args.push("-v");
                 args.push("--haxelib=halk");
                 p = new Process("haxelib", args);
-                redirectOutput(true);
+                redirectOutput(true, true, true);
 
                 if (p.exitCode() != 0) Sys.exit(p.exitCode());
 
@@ -198,7 +221,8 @@ class Run {
                 var args = cfg.haxeArgs.split(" ");
                 args.push("--no-output");
                 p = new Process("haxe", args);
-                redirectOutput();
+                trace("@@@@@");
+                redirectOutput(false, true);
 
                 if (p.exitCode() != 0) Sys.exit(p.exitCode());
         }
