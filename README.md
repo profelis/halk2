@@ -13,13 +13,18 @@ Live coding extension for Haxe programming language.
 
 ## Usage
 
-### Default build (without halk magic)
+#### Default build (without halk magic)
+
 `haxelib run halk build.hxml` // simple haxe project
+
 or
+
 `haxelib run halk test flash` // openfl project
 
-### First build (magic starts here)
+#### First build (magic starts here)
+
 `haxelib run halk ... -halk`
 
-### Incremental build (build with --no-output, update live data very fast)
+#### Incremental build (build with --no-output, update live data very fast)
+
 `haxelib run halk ... -halka` // allow -halk + random char (halk3, halke, halki, etc)
