@@ -2,6 +2,8 @@
 
 Live coding extension for Haxe programming language.
 
+Supported targets: flash, neko, html5, cpp(desktop)
+
 ------
 
 ## Installation
@@ -29,20 +31,24 @@ or
 
 `haxelib run halk ... -halka` // allow -halk + random char (halk3, halke, halki, etc)
 
+## Manual usage (not recommended for openfl/lime projects)
+
+- Set magic define `-D halk_angry`
+- Build with `--no-inline` flag
+- Reguild with `--no-inline --no-output` flags
+
 ### Recommends
 
 Useful compiler flags `-debug -dce no  --connect 4444`
 
 for lime project
 
-```
-<haxeflag name="-debug"/>
+```<haxeflag name="-debug"/>
 <haxeflag name="-dce no"/>
-<haxeflag name="--connect 4444"/>
-```
+<haxeflag name="--connect 4444"/>```
 
 More info about `--connect` http://haxe.org/manual/cr-completion-server.html 
 
 ### Known problems
 
-If you see `EUnknownVariable(__dollar__#####))` set `--no-inline`
+If you see `EUnknownVariable(__dollar__#####))` set `--no-inline` (autoset in `haxelib run halk`)
