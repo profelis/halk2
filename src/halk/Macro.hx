@@ -134,7 +134,7 @@ class Macro {
 
         var path = getOutPath();
         try {
-            // todo: global version
+            // todo: global version?
             var cont = File.getContent(path);
             context.version = MacroContext.getVersion(cont) + 1;
         } catch (e:Dynamic) {
@@ -159,7 +159,7 @@ class Macro {
 
     macro static public function build():Array<Field> {
 
-        if (!Context.defined("halk")) return null;
+        if (!Context.defined("halk_angry")) return null;
 
         if (!registered) {
             registered = true;
