@@ -235,7 +235,19 @@ class HScriptTypedConverter {
             case TBreak: EBreak;
             case TContinue: EContinue;
             case TThrow(e): EThrow(map(e));
-            case TCast(e, t): if (t != null) registerBaseType(baseTypeFromModuleType(t)); map(e);
+            case TCast(e, t):
+                var a = map(e);
+                if (t != null) {
+                    var baseType = baseTypeFromModuleType(t);
+                    registerBaseType(baseType);
+                    var path = BaseTypeTools.baseTypePath(baseType);
+                    registerStdType(["Std"]);
+                    EIf(ECall(pathToHExpr(["Std", "is"]),[a,pathToHExpr(path)]),a,EThrow(EConst(CString('can\'t cast "${a.toString()}" to "${path.join(".")}"'))));
+                }
+                else {
+                    a;
+                }
+
             case TMeta(_, e): map(e);
             case TEnumParameter(e1, _, idx):
                 convertType(e1.t, e1.pos);
@@ -255,6 +267,7 @@ class HScriptTypedConverter {
     }
 
     inline function pathToHExpr(path:Array<String>) {
+        path = path.copy();
         var res = EIdent(path.shift());
         while (path.length > 0) res = EField(res, path.shift());
         return res;
