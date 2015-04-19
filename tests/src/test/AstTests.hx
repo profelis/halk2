@@ -61,7 +61,7 @@ class AstTests extends BuddySuite {
             it("cast tests", function () {
                 a.doCast().should.be(0);
 
-                #if (halk || !cpp) // crash app on cpp target
+                #if (halk_angry || !cpp) // crash app on cpp target
                 try {
                     trace(a.doBadCast());
                     fail();
@@ -96,7 +96,7 @@ class AstTests extends BuddySuite {
 
     function returnSwitch() {
         var a = ["a"];
-        a.push("b");
+        a.push("b".toLowerCase());
         return switch a
         {
             case ["b", _]:1;

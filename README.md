@@ -25,6 +25,24 @@ or
 
 `haxelib run halk ... -halk`
 
-#### Incremental build (build with --no-output, update live data very fast)
+#### Incremental build (build with --no-output --no-inline, update live data very fast)
 
 `haxelib run halk ... -halka` // allow -halk + random char (halk3, halke, halki, etc)
+
+### Recommends
+
+Useful compiler flags `-debug -dce no  --connect 4444`
+
+for lime project
+
+```
+<haxeflag name="-debug"/>
+<haxeflag name="-dce no"/>
+<haxeflag name="--connect 4444"/>
+```
+
+More info about `--connect` http://haxe.org/manual/cr-completion-server.html 
+
+### Known problems
+
+If you see `EUnknownVariable(__dollar__#####))` set `--no-inline`

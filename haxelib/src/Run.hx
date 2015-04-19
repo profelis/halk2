@@ -67,5 +67,7 @@ class Run {
     function printHelp() {
         out("Use 'haxelib run halk <build>.hxml' or 'haxelib run halk test flash ...' for openfl project");
         out("more info https://github.com/profelis/halk2");
+
+        Sys.exit(1);
     }
 }

@@ -12,7 +12,8 @@
 
 	<haxelib name="halk"/>
 
-	<!--<haxeflag name="&#45;&#45;no-inline"/>-->
+	<!--<haxeflag name="-dce no"/>-->
+	<!--<haxeflag name="-D halk_angry"/>-->
 
 	<assets path="assets" exclude="lime.svg" />
 	<icon path="assets/lime.svg" />

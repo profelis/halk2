@@ -23,6 +23,7 @@ class HxmlProject extends AbstractProject {
 
         args.push("-D");
         args.push(AbstractProject.ACTIVATE_HALK);
+        args.push("--no-inline");
 
         var p = execHaxe(args);
 

@@ -1,5 +1,6 @@
 package ;
 
+#if lime
 
 import halk.ILive;
 import test.Tests;
@@ -11,7 +12,7 @@ class Main extends Application implements ILive {
     public function new () {
         super ();
 
-        #if !halk
+        #if !halk_angry
         live();
         #end
     }
@@ -20,3 +21,4 @@ class Main extends Application implements ILive {
         Tests.main();
     }
 }
+#end

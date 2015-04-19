@@ -32,11 +32,10 @@ class LimeProject extends AbstractProject {
         addLime(args);
         args.push("-D" + AbstractProject.ACTIVATE_HALK);
         args.push("-v"); // read haxe args from verbose mode %)
+        args.push("--haxeflag=\"--no-inline\"");
 
         var p = exec("haxelib", args);
         var lines = redirectOutput(p, true, true);
-
-        if (p.exitCode() != 0) Sys.exit(p.exitCode());
 
         var haxeArgs = null;
 
@@ -50,8 +49,13 @@ class LimeProject extends AbstractProject {
 
         if (haxeArgs != null) {
             storeConfig(haxeArgs.split(" "));
+
+            if (p.exitCode() != 0) Sys.exit(p.exitCode());
+
         }  else {
             prln("Error: Can't find haxe command in lime output. Very sad :(");
+
+            if (p.exitCode() != 0) Sys.exit(p.exitCode());
             Sys.exit(1);
         }
     }
