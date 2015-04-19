@@ -98,6 +98,7 @@ class Run {
             case DefaultBuild:
                 deleteBuildConfig();
 
+                out("$ haxe  " + args.join(" "));
                 p = new Process("haxe", args);
                 redirectOutput();
                 if (p.exitCode() != 0) Sys.exit(p.exitCode());
@@ -109,6 +110,7 @@ class Run {
                 args.push("halk");
                 args.push("-lib");
                 args.push("halk");
+                out("$ haxe  " + args.join(" "));
                 p = new Process("haxe", args);
                 redirectOutput();
 
@@ -128,6 +130,7 @@ class Run {
                 }
                 var args = cfg.haxeArgs.split(" ");
                 args.push("--no-output");
+                out("$ haxe  " + args.join(" "));
                 p = new Process("haxe", args);
                 redirectOutput();
 
@@ -151,8 +154,6 @@ class Run {
             var del = Sys.systemName() == "Windows" ? "\n\r" : "\n";
 
             if (logOut) {
-                trace("@@@1");
-
                 var out = Sys.stdout();
                 try {
                     while (true) {
@@ -160,13 +161,11 @@ class Run {
                         if (parse) parseHaxeExec(s);
                         out.writeString(s + del);
                         out.flush();
-//                        Sys.sleep(0.01);
                     }
                 } catch (e:Dynamic) {}
             }
 
             if (logError) {
-                trace("@@@0");
                 var err = Sys.stdout();
                 try {
                     while (true) {
@@ -174,12 +173,9 @@ class Run {
                         if (parse) parseHaxeExec(s);
                         err.writeString(s + del);
                         err.flush();
-//                        Sys.sleep(0.01);
                     }
                 } catch (e:Dynamic) {}
             }
-
-            trace("@@@2");
         }
 
         switch buildType {
@@ -188,6 +184,7 @@ class Run {
 
                 args.unshift("lime");
                 args.unshift("run");
+                out("$ haxelib  " + args.join(" "));
                 p = new Process("haxelib", args);
                 redirectOutput(true, true);
 
@@ -201,6 +198,7 @@ class Run {
                 args.push("-Dhalk");
                 args.push("-v");
                 args.push("--haxelib=halk");
+                out("$ haxelib  " + args.join(" "));
                 p = new Process("haxelib", args);
                 redirectOutput(true, true, true);
 
@@ -220,8 +218,8 @@ class Run {
                 }
                 var args = cfg.haxeArgs.split(" ");
                 args.push("--no-output");
+                out("$ haxe  " + args.join(" "));
                 p = new Process("haxe", args);
-                trace("@@@@@");
                 redirectOutput(false, true);
 
                 if (p.exitCode() != 0) Sys.exit(p.exitCode());
