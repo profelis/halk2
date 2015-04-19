@@ -21,11 +21,11 @@ or
 
 `haxelib run halk test flash` // openfl project
 
-#### First build (magic starts here)
+#### First build (magic starts here) (additional args: --no-inline)
 
 `haxelib run halk ... -halk`
 
-#### Incremental build (build with --no-output --no-inline, update live data very fast)
+#### Incremental build (skip all steps, only haxe build) (additional args: --no-output --no-inline)
 
 `haxelib run halk ... -halka` // allow -halk + random char (halk3, halke, halki, etc)
 
