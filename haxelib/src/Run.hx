@@ -107,6 +107,8 @@ class Run {
 
                 args.push("-D");
                 args.push("halk");
+                args.push("-lib");
+                args.push("halk");
                 p = new Process("haxe", args);
                 redirectOutput();
 
@@ -175,6 +177,7 @@ class Run {
                 args.unshift("run");
                 args.push("-Dhalk");
                 args.push("-v");
+                args.push("--haxelib=halk");
                 p = new Process("haxelib", args);
                 redirectOutput(true);
 
