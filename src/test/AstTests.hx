@@ -62,7 +62,6 @@ class AstTests extends BuddySuite {
                 a.doCast().should.be(0);
 
                 #if (halk || !cpp) // crash app on cpp target
-                trace("cpp");
                 try {
                     trace(a.doBadCast());
                     fail();

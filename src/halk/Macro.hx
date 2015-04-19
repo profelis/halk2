@@ -144,7 +144,7 @@ class Macro {
 
         var cont = context.toFile();
         File.saveContent(path, cont);
-        neko.Lib.println("Config saved: " + path);
+        neko.Lib.println("Config saved: " + path + " version: " + context.version);
         Context.addResource(MacroContext.LIVE_FILE_NAME, Bytes.ofString(cont));
 
         reset();

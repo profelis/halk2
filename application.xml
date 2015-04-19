@@ -10,8 +10,7 @@
 	<haxelib name="hscript" />
 	<haxelib name="buddy" />
 
-    <haxeflag name="--no-inline"/>
-    <haxeflag name="-D halk"/>
+    <!--<haxeflag name="&#45;&#45;no-inline"/>-->
 
 	<assets path="assets" exclude="lime.svg" />
 	<icon path="assets/lime.svg" />
