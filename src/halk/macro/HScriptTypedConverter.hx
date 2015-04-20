@@ -2,6 +2,7 @@ package halk.macro;
 
 #if macro
 
+import halk.macro.TypeTools;
 import haxe.macro.Type;
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -10,6 +11,8 @@ import halk.macro.TypeTools;
 
 using hscript.Printer;
 using haxe.macro.Tools;
+
+using StringTools;
 
 class HScriptTypedConverter {
 
@@ -99,6 +102,10 @@ class HScriptTypedConverter {
             types.set(t.join("."), t);
         }
 
+        inline function patchVarName(v:TVar) {
+            return if (v.name == "`") v.name + TypeTools.getFullPath(v.t).pop(); else v.name;
+        }
+
         return switch e.expr {
             case TConst(TInt(c)): EConst(CInt(c));
             case TConst(TFloat(c)): EConst(CFloat(Std.parseFloat(c)));
@@ -108,16 +115,17 @@ class HScriptTypedConverter {
             case TConst(TThis): EIdent("this");
             case TConst(TSuper): EIdent("super");
             case TLocal(v):
-                convertType(e.t, e.pos);
+                var type = convertType(e.t, e.pos);
                 // magic "`trace" method in js target
-                if (v.name == "`trace")
-                {
+                if (v.name == "`trace") {
                     var type = ["haxe", "Log"];
                     registerStdType(type);
                     type.push("trace");
                     pathToHExpr(type);
                 }
-                else EIdent(v.name);
+                else {
+                    EIdent(patchVarName(v));
+                }
 
             case TArray(e1, e2): EArray(map(e1), map(e2));
             case TBinop(OpAssignOp(op), e1, e2): EBinop(binops.get(op) + "=", map(e1), map(e2));
@@ -199,10 +207,9 @@ class HScriptTypedConverter {
                 }
                 EFunction(args, map(func.expr), null, convertType(func.t, e.pos));
 
-            case TVar(v, expr):
-                EVar(v.name, convertType(v.t, e.pos), map(expr));
+            case TVar(v, expr): EVar(patchVarName(v), convertType(v.t, e.pos), map(expr));
             case TBlock(el): EBlock(mapArray(el));
-            case TFor(v, it, expr): EFor(v.name, map(it), map(expr));
+            case TFor(v, it, expr): EFor(patchVarName(v), map(it), map(expr));
             case TIf(econd, eif, eelse): EIf(map(econd), map(eif), map(eelse));
             case TWhile(econd, e, true): EWhile(map(econd), map(e));
             case TWhile(econd, e, false):
@@ -229,7 +236,7 @@ class HScriptTypedConverter {
                     Context.warning("halk support only one catch. Last catch will be used", e.pos);
                 }
                 var c = catches[catches.length - 1];
-                ETry(map(etry), c.v.name, convertType(c.v.t, e.pos), map(c.expr));
+                ETry(map(etry), patchVarName(c.v), convertType(c.v.t, e.pos), map(c.expr));
 
             case TReturn(e): EReturn(map(e));
             case TBreak: EBreak;
@@ -266,7 +273,7 @@ class HScriptTypedConverter {
         };
     }
 
-    inline function pathToHExpr(path:Array<String>) {
+    inline function pathToHExpr(path:Array<String>):hscript.Expr {
         path = path.copy();
         var res = EIdent(path.shift());
         while (path.length > 0) res = EField(res, path.shift());
