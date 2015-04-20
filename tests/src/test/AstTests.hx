@@ -51,7 +51,7 @@ class AstTests extends BuddySuite {
             });
 
             it("do-while tests", function () {
-                a.doWhile().should.be(11);
+                a.doWhile().should.be(0);
             });
 
             it("function.bind tests", function () {
@@ -89,6 +89,12 @@ class AstTests extends BuddySuite {
     public function new() {}
 
     var s = [true, false];
+
+    var _f:Float = 0.0;
+    var f(get_f, set_f):Float;
+
+    function get_f() return _f;
+    function set_f(value) return _f = value;
 
     function returnInt() {
         return 1;
@@ -171,7 +177,9 @@ class AstTests extends BuddySuite {
         i += 5;
         #end
         // i == 11
-        return i;
+        f = 5;
+        f += 6;
+        return Std.int(i - f);
     }
 
     function funcBind() {
