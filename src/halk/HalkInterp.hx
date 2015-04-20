@@ -4,6 +4,7 @@ import hscript.Interp;
 class HalkInterp extends Interp {
 
     override function get( o : Dynamic, f : String ) : Dynamic {
+//        trace(o + " " + f);
         if( o == null ) error(EInvalidAccess(f));
         return Reflect.getProperty(o,f);
     }
@@ -14,11 +15,13 @@ class HalkInterp extends Interp {
         return v;
     }
 
-//    override function fcall( o : Dynamic, f : String, args : Array<Dynamic> ) : Dynamic {
-//        trace(o);
-//        trace(f);
-//        return call(o, Reflect.field(o, f), args);
-//    }
+    override function fcall( o : Dynamic, f : String, args : Array<Dynamic> ) : Dynamic {
+//        trace(o + " " + f);
+        #if flash
+        if (o == Std && f == "int") return call(Std, Std.int, args);
+        #end
+        return call(o, Reflect.field(o, f), args);
+    }
 //
 //    override function call( o : Dynamic, f : Dynamic, args : Array<Dynamic> ) : Dynamic {
 //        trace(o);
