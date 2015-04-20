@@ -3,7 +3,7 @@ package halk;
 import haxe.Resource;
 import halk.Macro.MacroContext;
 
-#if halk
+#if halk_angry
 
 #if sys
 import sys.io.File;
