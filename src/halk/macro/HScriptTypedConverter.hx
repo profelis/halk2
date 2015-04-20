@@ -290,10 +290,10 @@ class HScriptTypedConverter {
     }
 
     inline function convertType(type:haxe.macro.Type, pos:Position):CType {
-        return contertComplexType(TypeTools.toComplexType(type), pos);
+        return convertComplexType(TypeTools.toComplexType(type), pos);
     }
 
-    function contertTypePath(p:TypePath, pos:Position):CType {
+    function convertTypePath(p:TypePath, pos:Position):CType {
         var path:Array<String> = null;
         var sub = null;
         if (p.sub != null) {
@@ -326,7 +326,7 @@ class HScriptTypedConverter {
         return CTPath(path, null);
     }
 
-    function contertComplexType(type:ComplexType, pos:Position):CType {
+    function convertComplexType(type:ComplexType, pos:Position):CType {
         if (type == null) return null;
 
         inline function processAnonFields(fields:Array<Field>) {
@@ -336,13 +336,13 @@ class HScriptTypedConverter {
                 switch f.kind {
                     case FVar(t, e):
                         if (e != null) Context.error('default values are not supported in anonymous structs', pos);
-                        res.push({name: name, t: contertComplexType(t, pos)});
+                        res.push({name: name, t: convertComplexType(t, pos)});
 
                     case FProp(_, _):
                         Context.error('properties are not supported in anonymous structs', pos);
 
                     case FFun(f):
-                        var type = CTFun([for (a in f.args) contertComplexType(a.type, pos)], contertComplexType(f.ret, pos));
+                        var type = CTFun([for (a in f.args) convertComplexType(a.type, pos)], convertComplexType(f.ret, pos));
                         res.push({name: name, t: type});
                 }
             }
@@ -351,15 +351,15 @@ class HScriptTypedConverter {
 
         return switch type {
             case TPath(p):
-                contertTypePath(p, pos);
-            case TFunction(args, ret): CTFun([for (a in args) contertComplexType(a, pos)], contertComplexType(ret, pos));
+                convertTypePath(p, pos);
+            case TFunction(args, ret): CTFun([for (a in args) convertComplexType(a, pos)], convertComplexType(ret, pos));
             case TAnonymous(fields): CTAnon(processAnonFields(fields));
-            case TParent(t): CTParent(contertComplexType(t, pos));
+            case TParent(t): CTParent(convertComplexType(t, pos));
             case TExtend(p, fields):
-                for (t in p) contertTypePath(t, pos);
+                for (t in p) convertTypePath(t, pos);
                 CTAnon(processAnonFields(fields));
 
-            case TOptional(t): contertComplexType(t, pos);
+            case TOptional(t): convertComplexType(t, pos);
         }
     }
 }
