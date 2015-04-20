@@ -35,7 +35,7 @@ or
 
 - Set magic define `-D halk_angry`
 - Build with `--no-inline` flag
-- Reguild with `--no-inline --no-output` flags
+- Rebuild with `--no-inline --no-output` flags
 
 ### Recommends
 
