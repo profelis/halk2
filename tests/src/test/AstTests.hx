@@ -51,7 +51,9 @@ class AstTests extends BuddySuite {
             });
 
             it("do-while tests", function () {
+                #if !cpp
                 a.doWhile().should.be(0);
+                #end
             });
 
             it("function.bind tests", function () {
