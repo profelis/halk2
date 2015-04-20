@@ -50,12 +50,12 @@ class LimeProject extends AbstractProject {
         if (haxeArgs != null) {
             storeConfig(haxeArgs.split(" "));
 
-            if (p.exitCode() != 0) Sys.exit(p.exitCode());
+//            if (p.exitCode() != 0) Sys.exit(p.exitCode());
 
         }  else {
             prln("Error: Can't find haxe command in lime output. Very sad :(");
 
-            if (p.exitCode() != 0) Sys.exit(p.exitCode());
+//            if (p.exitCode() != 0) Sys.exit(p.exitCode());
             Sys.exit(1);
         }
     }
