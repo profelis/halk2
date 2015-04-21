@@ -2,7 +2,7 @@
 
 Live coding extension for Haxe programming language.
 
-Supported targets: flash, neko, html5, cpp(desktop)
+Tested targets: flash, neko, html5, cpp(desktop)
 
 ------
 
@@ -52,3 +52,4 @@ More info about `--connect` http://haxe.org/manual/cr-completion-server.html
 ### Known problems
 
 If you see `EUnknownVariable(__dollar__#####))` set `--no-inline` (autoset in `haxelib run halk`)
+`-debug` required for `cpp` target 
