@@ -1,7 +1,6 @@
 package test;
 
 import haxe.io.Path;
-import halk.ILive;
 import buddy.BuddySuite;
 
 using buddy.Should;
@@ -60,18 +59,22 @@ class AstTests extends BuddySuite {
 
             it("cast tests", function () {
                 a.doCast().should.be(0);
+            });
 
+            it("failed cast tests", function () {
+                #if (!cpp || halk_angry || debug)
                 try {
-                    trace(a.doBadCast());
-                    fail("error: throwing doesn't work");
+                    var s = a.doBadCast();
+                    fail("error: throwing doesn't work: " + s);
                 } catch(e:Dynamic) {
                     #if halk_angry
                     e.should.be('can\'t cast "s" to "Array"');
                     #else
                     e.should.not.be(null);
-                    trace(e);
+//                    trace(e);
                     #end
                 }
+                #end
             });
 
             it("enum tests", function () {
@@ -89,7 +92,8 @@ class AstTests extends BuddySuite {
     }
 }
 
-@live @:publicFields private class ClassA implements ILive {
+@live @:publicFields
+private class ClassA implements halk.ILive {
     public function new() {}
 
     var s = [true, false];
@@ -223,9 +227,10 @@ class AstTests extends BuddySuite {
     }
 
     @noLive function enumI1() return I1;
+    @noLive function enumI1gate(e:EnumInt):EnumInt return e;
 
     function execIntEnum() {
-        var a = I1;
+        var a = enumI1gate(I1);
         var b = enumI1();
         return a == b;
     }

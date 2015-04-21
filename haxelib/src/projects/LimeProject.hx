@@ -23,7 +23,7 @@ class LimeProject extends AbstractProject {
     public override function defaulBuild(args:Array<String>) {
         addLime(args);
         var p = execHaxelib(args);
-        if (p.exitCode() != 0) Sys.exit(p.exitCode());
+//        if (p.exitCode() != 0) Sys.exit(p.exitCode());
     }
 
     public override function halkBuild(args:Array<String>):Void {
