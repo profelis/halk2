@@ -61,13 +61,17 @@ class AstTests extends BuddySuite {
             it("cast tests", function () {
                 a.doCast().should.be(0);
 
-                #if (halk_angry || !cpp) // crash app on cpp target
                 try {
                     trace(a.doBadCast());
-                    fail();
+                    fail("error: throwing doesn't work");
                 } catch(e:Dynamic) {
+                    #if halk_angry
+                    e.should.be('can\'t cast "s" to "Array"');
+                    #else
+                    e.should.not.be(null);
+                    trace(e);
+                    #end
                 }
-                #end
             });
 
             it("enum tests", function () {
