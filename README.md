@@ -43,13 +43,15 @@ Useful compiler flags `-debug -dce no  --connect 4444`
 
 for lime project
 
-```<haxeflag name="-debug"/>
+```
+<haxeflag name="-debug"/>
 <haxeflag name="-dce no"/>
-<haxeflag name="--connect 4444"/>```
+<haxeflag name="--connect 4444"/>
+```
 
 More info about `--connect` http://haxe.org/manual/cr-completion-server.html 
 
 ### Known problems
 
-If you see `EUnknownVariable(__dollar__#####))` set `--no-inline` (autoset in `haxelib run halk`)
-`-debug` required for `cpp` target 
+- If you see `EUnknownVariable(__dollar__#####))` set `--no-inline` (autoset in `haxelib run halk`)
+- `-debug` required for `cpp` target 
