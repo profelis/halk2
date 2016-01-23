@@ -194,11 +194,25 @@ class LiveProcessor {
 
                 var exprs = [f.expr];
                 var args = [for (arg in f.args) macro $i{arg.name}];
-                exprs.unshift(macro return halk.Live.instance.call(this, $v{typeName + field.name}, $a{args}));
+                if (returnSomething(f.expr)) exprs.unshift(macro return halk.Live.instance.call(this, $v{typeName + field.name}, $a{args}));
+                else exprs.unshift(macro { halk.Live.instance.call(this, $v{typeName + field.name}, $a{args}); return; });
 
                 f.expr = macro $b{exprs};
             case _:
         }
+    }
+
+    function returnSomething(e:Expr) {
+        var ret = false;
+        function iter(e:Expr) {
+            if (ret) return;
+            switch (e.expr) {
+                case EReturn(a): ret = a != null;
+                case _: return e.iter(iter);
+            }
+        }
+        iter(e);
+        return ret;
     }
 
     function ignoreField(field:Field):Bool {
