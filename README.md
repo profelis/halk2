@@ -23,17 +23,13 @@ or
 
 `haxelib run halk test flash` // openfl project
 
-#### First build (magic starts here) (additional args: --no-inline)
+#### Magic build (additional args: --no-inline)
 
-`haxelib run halk build ... -halk`
+1. Build application `haxelib run halk build ... -halk`
 
-#### Run application
+2. Run application `haxelib run halk run ...`
 
-`haxelib run halk run ...`
-
-#### Incremental build (skip all steps, only haxe build) (additional args: --no-output --no-inline)
-
-`haxelib run halk build ... -halka` // allow -halk + random char (halk3, halke, halki, etc)
+3. Incremental build (skip all steps, only haxe build) (additional args: --no-output --no-inline) `haxelib run halk build ... -halka` // allow -halk + random char (halk3, halke, halki, etc)
 
 ## Manual usage (not recommended for openfl/lime projects)
 
@@ -48,8 +44,8 @@ Useful compiler flags `-debug -dce no  --connect 4444`
 for lime project
 
 ```
-<haxeflag name="-debug"/>
-<haxeflag name="-dce no"/>
+<haxeflag name="-debug" if="halk_angry"/>
+<haxeflag name="-dce no" if="halk_angry"/>
 <haxeflag name="--connect 4444"/>
 ```
 
