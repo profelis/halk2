@@ -1,11 +1,10 @@
 package test;
 
-import buddy.Buddy;
-import buddy.BuddySuite;
+import buddy.*;
 
 #if js
 @reporter("buddy.reporting.TraceReporter")
 #else
 @reporter("buddy.reporting.ConsoleReporter")
 #end
-class Tests implements Buddy {}
+class Tests implements Buddy<[test.AstTests]> {}

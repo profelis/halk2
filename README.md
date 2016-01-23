@@ -25,11 +25,15 @@ or
 
 #### First build (magic starts here) (additional args: --no-inline)
 
-`haxelib run halk ... -halk`
+`haxelib run halk build ... -halk`
+
+#### Run application
+
+`haxelib run halk run ...`
 
 #### Incremental build (skip all steps, only haxe build) (additional args: --no-output --no-inline)
 
-`haxelib run halk ... -halka` // allow -halk + random char (halk3, halke, halki, etc)
+`haxelib run halk build ... -halka` // allow -halk + random char (halk3, halke, halki, etc)
 
 ## Manual usage (not recommended for openfl/lime projects)
 

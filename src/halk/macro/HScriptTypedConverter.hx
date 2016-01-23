@@ -230,7 +230,6 @@ class HScriptTypedConverter {
                 }
                 ESwitch(map(e), res, map(edef));
 
-            case TPatMatch: throw "unknown expr";
             case TTry(etry, catches):
                 if (catches.length > 1) {
                     Context.warning("halk support only one catch. Last catch will be used", e.pos);
@@ -267,7 +266,7 @@ class HScriptTypedConverter {
 
     inline function fieldName(field:FieldAccess):String {
         return switch field {
-            case FInstance(_, t) | FStatic(_, t) | FAnon(t) | FClosure(_, t): t.get().name;
+            case FInstance(_, _, t) | FStatic(_, t) | FAnon(t) | FClosure(_, t): t.get().name;
             case FDynamic(s): s;
             case FEnum(_, ef): ef.name;
         };

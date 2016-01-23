@@ -1,5 +1,3 @@
-package ;
-
 import sys.io.File;
 import sys.FileSystem;
 import haxe.Serializer;

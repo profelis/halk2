@@ -12,7 +12,7 @@
 
 	<haxelib name="halk"/>
 
-	<!--<haxeflag name="-dce no"/>-->
+	<haxeflag name="-dce no" if="halk_angry"/>
 	<!--<haxeflag name="-D halk_angry"/>-->
 
 	<assets path="assets" exclude="lime.svg" />
