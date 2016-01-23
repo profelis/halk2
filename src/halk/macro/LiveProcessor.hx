@@ -153,7 +153,8 @@ class LiveProcessor {
                 var args:Array<{v:TVar, value:Null<TConstant>}>;
                 switch (f.expr().expr) {
                     // function { return #magic#, {#old_function_body#} }
-                    case TFunction({args:a, expr:{expr:TBlock([{expr:TReturn(_)}, e])}}):
+                    case TFunction({args:a, expr:{expr:TBlock([{expr:TReturn(_)}, e])}})
+                       | TFunction({args:a, expr:{expr:TBlock([{expr:TBlock([_, {expr:TReturn(null)}])}, e])}}):
                         expr = e;
                         args = a;
                     case _: throw false;

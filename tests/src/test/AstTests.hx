@@ -88,6 +88,11 @@ class AstTests extends BuddySuite {
                a.dynamicAbstract().should.be("foo");
                a.arrayAbstract().should.be(0);
             });
+
+            it("void method", function (done) {
+               a.voidMethod();
+               done();
+            });
         });
     }
 }
@@ -118,6 +123,12 @@ private class ClassA implements halk.ILive {
             case ["a", "b"]:3;
             default:4;
         }
+    }
+
+    function voidMethod():Void {
+        var a = 10;
+        a -= 10;
+        trace(a);
     }
 
     function returnIf() {
