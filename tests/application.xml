@@ -13,6 +13,18 @@
 	<haxelib name="halk"/>
 
 	<haxeflag name="-dce no" if="halk_angry"/>
+	<haxeflag name="--no-inline" if="halk_angry cpp"/>
+	<!--<haxeflag name="-dce no" />-->
+	<!--<haxeflag name="-D no-opt" />-->
+	<!--<haxeflag name="-D no_optimize" />-->
+	<!--<haxeflag name="-D no-optimize" />-->
+	<!--<haxeflag name="-D analyzer-no-const-propagation" if="halk_angry"/>-->
+	<!--<haxeflag name="-D analyzer-no-copy-propagation" if="halk_angry"/>-->
+	<!--<haxeflag name="-D analyzer-no-local-dce" if="halk_angry"/>-->
+	<!--<haxeflag name="-D analyzer-no-fusion" if="halk_angry"/>-->
+	<!--<haxeflag name="-D analyzer-no-purity-inference" if="halk_angry"/>-->
+	<!--<haxeflag name="-D analyzer-no-optimize" if="halk_angry"/>-->
+	<!--<haxeflag name="-D analyzer-no_optimize" if="halk_angry"/>-->
 	<!--<haxeflag name="-D halk_angry"/>-->
 
 	<assets path="assets" exclude="lime.svg" />

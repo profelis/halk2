@@ -13,7 +13,7 @@ class AstTests extends BuddySuite {
 
             var a:ClassA;
 
-            before(function () {
+            beforeEach(function () {
                 a = new ClassA();
             });
 
@@ -97,16 +97,16 @@ class AstTests extends BuddySuite {
     }
 }
 
-@live @:publicFields
+@live @:publicFields @:keep
 private class ClassA implements halk.ILive {
     public function new() {}
 
     var s = [true, false];
 
     var _f:Float = 0.0;
-    var f(get_f, set_f):Float;
+    var f(get, set):Float;
 
-    function get_f() return _f;
+    function get_f() { return _f; }
     function set_f(value) return _f = value;
 
     function returnInt() {
@@ -118,7 +118,7 @@ private class ClassA implements halk.ILive {
         a.push("b".toLowerCase());
         return switch a
         {
-            case ["b", _]:1;
+            case ["b", _]:2;
             case ["a", "c"]:2;
             case ["a", "b"]:3;
             default:4;
@@ -142,7 +142,7 @@ private class ClassA implements halk.ILive {
     }
 
     function returnField() {
-        return ((s));
+        return (s);
     }
 
     function doThrow(f:Bool) {

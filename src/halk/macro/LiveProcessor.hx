@@ -153,9 +153,18 @@ class LiveProcessor {
                 var args:Array<{v:TVar, value:Null<TConstant>}>;
                 switch (f.expr().expr) {
                     // function { return #magic#, {#old_function_body#} }
-                    case TFunction({args:a, expr:{expr:TBlock([{expr:TReturn(_)}, e])}})
-                       | TFunction({args:a, expr:{expr:TBlock([{expr:TBlock([_, {expr:TReturn(null)}])}, e])}}):
-                        expr = e;
+                    case TFunction({args:a, expr:{pos:pos, t:type, expr:TBlock(exprs)}}) if (exprs.length > 1):
+                        // skip all expr before first if
+                        while (exprs.length > 0) {
+                            var doBreak = false;
+                            switch (exprs[0]) {
+                                case {expr:TIf(_)}: doBreak = true;
+                                case _:
+                            }
+                            exprs.shift();
+                            if (doBreak) break;
+                        }
+                        expr = {expr:TBlock(exprs), t:type, pos:pos};
                         args = a;
                     case _: throw false;
                 };
@@ -195,8 +204,8 @@ class LiveProcessor {
 
                 var exprs = [f.expr];
                 var args = [for (arg in f.args) macro $i{arg.name}];
-                if (returnSomething(f.expr)) exprs.unshift(macro return halk.Live.instance.call(this, $v{typeName + field.name}, $a{args}));
-                else exprs.unshift(macro { halk.Live.instance.call(this, $v{typeName + field.name}, $a{args}); return; });
+                if (returnSomething(f.expr)) exprs.unshift(macro if (halk.Live.isActive()) return halk.Live.instance.call(this, $v{typeName + field.name}, $a{args}));
+                else exprs.unshift(macro if (halk.Live.isActive()) { halk.Live.instance.call(this, $v{typeName + field.name}, $a{args}); return; });
 
                 f.expr = macro $b{exprs};
             case _:

@@ -19,6 +19,8 @@ class Live {
 
     static public var instance(default, null) = new Live();
 
+    static public function isActive() { return true; }
+
     var listeners = new Array<Void->Void>();
 
     var interp:HalkInterp = new HalkInterp();
@@ -128,6 +130,7 @@ class Live {
         }
 
 //        trace(vars);
+//        for (m in data.methods) { trace(new hscript.Printer().exprToString(m)); };
 
         methods = [for (m in data.methods.keys()) m => interp.execute(data.methods[m])];
 
