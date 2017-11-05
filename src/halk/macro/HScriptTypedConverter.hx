@@ -339,17 +339,18 @@ class HScriptTypedConverter {
             var res = [];
             for (f in fields) {
                 var name = f.name;
+                var meta = cast(f.meta);
                 switch f.kind {
                     case FVar(t, e):
                         if (e != null) Context.error('default values are not supported in anonymous structs', pos);
-                        res.push({name: name, t: convertComplexType(t, pos)});
+                        res.push({name: name, t: convertComplexType(t, pos), meta: meta});
 
                     case FProp(_, _):
                         Context.error('properties are not supported in anonymous structs', pos);
 
                     case FFun(f):
                         var type = CTFun([for (a in f.args) convertComplexType(a.type, pos)], convertComplexType(f.ret, pos));
-                        res.push({name: name, t: type});
+                        res.push({name: name, t: type, meta: meta});
                 }
             }
             return res;
