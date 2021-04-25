@@ -6,6 +6,7 @@ import halk.Macro.MacroContext;
 #if halk_angry
 
 #if sys
+import sys.thread.Thread;
 import sys.io.File;
 #else
 import haxe.Http;
@@ -141,7 +142,7 @@ class Live {
 
     public function call<T>(ethis:T, method:String, args:Array<Dynamic>):Dynamic {
         if (data == null) return null;
-//        trace("call " + method);
+    //    trace("call " + method + " " + methods.get(method));
         interp.variables.set("this", ethis);
         return Reflect.callMethod(ethis, methods.get(method), args);
     }
@@ -164,8 +165,7 @@ class Live {
 
     static function delayedCall(f:Void->Void, time:Int) {
         #if sys
-        #if neko neko.vm.Thread #else cpp.vm.Thread #end
-        .create(function() {
+        Thread.create(function() {
             Sys.sleep(time / 1000);
             f();
         });

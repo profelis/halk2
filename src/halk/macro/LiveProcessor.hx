@@ -150,7 +150,7 @@ class LiveProcessor {
             for (f in classType.fields.get()) {
                 if (classData.fields.indexOf(f.name) == -1) continue;
                 var expr:TypedExpr;
-                var args:Array<{v:TVar, value:Null<TConstant>}>;
+                var args:Array<{v:TVar, value:Null<TypedExpr>}>;
                 switch (f.expr().expr) {
                     // function { return #magic#, {#old_function_body#} }
                     case TFunction({args:a, expr:{pos:pos, t:type, expr:TBlock(exprs)}}) if (exprs.length > 1):

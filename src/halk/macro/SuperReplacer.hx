@@ -7,6 +7,7 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 
 using StringTools;
+using haxe.macro.TypedExprTools;
 
 class SuperReplacer {
 
@@ -29,18 +30,6 @@ class SuperReplacer {
 //            trace(f.kind);
 //        }
         return res;
-    }
-
-    inline function constToExpr(c:TConstant):Expr {
-        return switch c {
-            case TInt(i): macro $v{i};
-            case TFloat(s): macro $v{Std.parseFloat(s)};
-            case TString(s): macro $v{s};
-            case TBool(b): macro $v{b};
-            case TNull: macro null;
-            case TThis: macro this;
-            case TSuper: macro super;
-        }
     }
 
     function generate(type:ClassType, res:Array<Field>) {
@@ -72,11 +61,11 @@ class SuperReplacer {
                 case FMethod(kind) if (kind != MethMacro):
                     switch f.expr().expr {
                         case TFunction(fn):
-                            var args = [for (a in fn.args) {
+                            var args: Array<FunctionArg> = [for (a in fn.args) {
                                 name : a.v.name,
                                 opt : a.value != null,
                                 type : TypeTools.toComplexType(a.v.t),
-                                value : a.value == null ? null : constToExpr(a.value)
+                                value : a.value == null ? null : haxe.macro.Context.getTypedExpr(a.value)
                             }];
                             var params = [for (a in fn.args) macro $i{a.v.name}];
                             addFn(replaceName(f.name), {

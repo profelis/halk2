@@ -57,6 +57,7 @@ class HScriptTypedConverter {
                 case OpAssignOp(_): "";
                 case OpInterval: "...";
                 case OpArrow: "=>";
+                case OpIn: "in";
             };
             binops.set(op, str);
             if( assign )
@@ -114,6 +115,8 @@ class HScriptTypedConverter {
             case TConst(TNull): EIdent("null");
             case TConst(TThis): EIdent("this");
             case TConst(TSuper): EIdent("super");
+            case TEnumIndex(e1): throw "unsuported"; // TODO:
+            case TIdent(s): EIdent(s);
             case TLocal(v):
                 var type = convertType(e.t, e.pos);
                 // magic "`trace" method in js target
@@ -264,7 +267,7 @@ class HScriptTypedConverter {
         };
     }
 
-    inline function fieldName(field:FieldAccess):String {
+    inline function fieldName(field:haxe.macro.FieldAccess):String {
         return switch field {
             case FInstance(_, _, t) | FStatic(_, t) | FAnon(t) | FClosure(_, t): t.get().name;
             case FDynamic(s): s;
@@ -279,7 +282,7 @@ class HScriptTypedConverter {
         return res;
     }
 
-    inline function baseTypeFromModuleType(t:ModuleType):BaseType {
+    inline function baseTypeFromModuleType(t:haxe.macro.ModuleType):BaseType {
         return switch t {
             case TClassDecl(r): r.get();
             case TEnumDecl(r): var res = r.get();
@@ -367,6 +370,8 @@ class HScriptTypedConverter {
                 CTAnon(processAnonFields(fields));
 
             case TOptional(t): convertComplexType(t, pos);
+            case TIntersection(tl): throw "unsupported"; // TODO:
+            case TNamed(n, t): CTNamed(n, convertComplexType(t, pos));
         }
     }
 }

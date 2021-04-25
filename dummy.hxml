@@ -1,0 +1,4 @@
+-lib hscript
+-lib halk
+-neko dummy.n
+-D halk_angry

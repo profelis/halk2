@@ -126,6 +126,7 @@ class Macro {
     static function onGenerate(types:Array<haxe.macro.Type>) {
         Compiler.keep('Type');
         Compiler.keep('haxe.Log');
+        Compiler.keep('Math');
 
         var context = new MacroContext();
         var processor = new LiveProcessor();
@@ -144,15 +145,10 @@ class Macro {
 
         var cont = context.toFile();
         File.saveContent(path, cont);
-        neko.Lib.println("Config saved: " + path + " version: " + context.version);
+        trace("Config saved: " + path + " version: " + context.version);
         Context.addResource(MacroContext.LIVE_FILE_NAME, Bytes.ofString(cont));
 
         reset();
-    }
-
-    static function onMacroContextReused() {
-        reset();
-        return true;
     }
 
     #end
@@ -163,7 +159,6 @@ class Macro {
 
         if (!registered) {
             registered = true;
-            Context.onMacroContextReused(onMacroContextReused);
             Context.onGenerate(onGenerate);
         }
 
